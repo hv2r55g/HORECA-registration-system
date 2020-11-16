@@ -21,14 +21,20 @@ public class Bar extends UnicastRemoteObject implements BarInterface{
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
 
          String hostname = "localhost";
+         String clientService = "RegistrarListening";
          String servicename = "RegistrarService";
          Bar currentBar = new Bar();
 
-         Naming.rebind("rmi://" + hostname + "/" + servicename, currentBar);
+         Naming.rebind("rmi://" + hostname + "/" + clientService, currentBar);
          RegistrarInterface registrarInterface = (RegistrarInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
          currentBar.registrarInterface = registrarInterface;
 
-         currentBar.registrarInterface.sendMessage("Hello World",currentBar);
+         currentBar.registrarInterface.sendMessageToRegistrar("Hello World",currentBar);
 
+    }
+
+    @Override
+    public void receiveMessage(String Message) {
+        System.out.println(Message);
     }
 }

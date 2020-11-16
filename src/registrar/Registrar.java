@@ -1,6 +1,7 @@
 package registrar;
 
 import bar.Bar;
+import bar.BarInterface;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -22,12 +23,15 @@ public class Registrar implements RegistrarInterface{
             String hostname = "localhost";
             String servicename = "RegistrarService";
 
+
             try{
-                RegistrarInterface hello = new Registrar();
-                Naming.rebind("rmi://" + hostname + "/" + servicename, hello);
+                Registrar obj = new Registrar();
+                RegistrarInterface stub = (RegistrarInterface) UnicastRemoteObject.exportObject(obj, 0);
+                Naming.rebind("rmi://" + hostname + "/" + servicename, stub);
                 System.out.println("RMI Server successful started");
             }
             catch(Exception e){
+                System.out.println(e);
                 System.out.println("Server failed starting ...");
             }
         }
@@ -43,7 +47,8 @@ public class Registrar implements RegistrarInterface{
         }
 
     @Override
-    public void sendMessage(String message, Bar bar) {
+    public void sendMessageToRegistrar(String message, BarInterface bar) throws RemoteException {
         System.out.println(message);
+        bar.receiveMessage("Server berichtje");
     }
 }
