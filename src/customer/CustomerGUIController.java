@@ -3,7 +3,6 @@ package customer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
-import java.awt.event.MouseEvent;
 
 
 public class CustomerGUIController {

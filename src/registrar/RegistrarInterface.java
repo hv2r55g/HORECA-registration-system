@@ -8,6 +8,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.RemoteRef;
 
 public interface RegistrarInterface extends Remote{
-    void sendMessageToRegistrar(String message, BarInterface bar) throws RemoteException;
+    void getDailySecretKey(int businessNumber) throws RemoteException;
+    
+    int getMasterSecretKey() throws RemoteException;
 
 }

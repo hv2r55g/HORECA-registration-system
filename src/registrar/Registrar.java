@@ -47,8 +47,15 @@ public class Registrar implements RegistrarInterface{
         }
 
     @Override
-    public void sendMessageToRegistrar(String message, BarInterface bar) throws RemoteException {
-        System.out.println(message);
-        bar.receiveMessage("Server berichtje");
+    public void getDailySecretKey(int businessNumber) throws RemoteException {
+        //CREEER DAILY SECRET KEYS OP BASIS VAN DE DAG, BUSINESSNUMBER EN DE MASTER SECRET KEY
+        
+    }
+
+    @Override
+    public int getMasterSecretKey() throws RemoteException {
+        //GENERATE EEN MASTER SECRET KEY VOOR DE BAR
+        
+        return 0;
     }
 }
