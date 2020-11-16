@@ -3,10 +3,15 @@
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
+<<<<<<< HEAD
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/Resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/Resources" type="java-resource" />
+=======
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+>>>>>>> 7653e6a47c365be225ce437d3bdc0e3952fa1db5
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
