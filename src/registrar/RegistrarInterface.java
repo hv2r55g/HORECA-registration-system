@@ -5,6 +5,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RegistrarInterface extends Remote{
+
     SecretKeySpec getDailySecretKey(int businessNumber) throws RemoteException;
     
     SecretKeySpec getMasterSecretKey() throws RemoteException;
