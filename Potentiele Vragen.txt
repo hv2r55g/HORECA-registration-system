@@ -1,0 +1,4 @@
+1. Waarom gebruiken we steeds dezelfde masterkey bij de registrar?
+-->
+
+2.
