@@ -1,13 +1,8 @@
 package registrar;
 
-import bar.Bar;
-import bar.BarInterface;
-
-import java.net.MalformedURLException;
+import javax.crypto.spec.SecretKeySpec;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.server.RemoteRef;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Registrar implements RegistrarInterface{
@@ -47,8 +42,21 @@ public class Registrar implements RegistrarInterface{
         }
 
     @Override
-    public void sendMessageToRegistrar(String message, BarInterface bar) throws RemoteException {
-        System.out.println(message);
-        bar.receiveMessage("Server berichtje");
+    public void getDailySecretKey(int businessNumber) throws RemoteException {
+        //CREEER DAILY SECRET KEYS OP BASIS VAN DE DAG, BUSINESSNUMBER EN DE MASTER SECRET KEY
+        
+    }
+
+    @Override
+    public SecretKeySpec getMasterSecretKey() throws RemoteException {
+        //GENERATE EEN MASTER SECRET KEY VOOR DE BAR
+        byte[] aesKeyData = "test".getBytes();
+        SecretKeySpec secretKey = new SecretKeySpec(aesKeyData, "AES");
+        return secretKey;
+    }
+
+    @Override
+    public void generateDailyCustomerToken(int phoneNumber) throws RemoteException {
+
     }
 }
