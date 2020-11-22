@@ -8,7 +8,7 @@ public interface RegistrarInterface extends Remote{
 
     void getDailySecretKey(int businessNumber) throws RemoteException;
 
-    void generateDailyCustomerToken(int phoneNumber) throws RemoteException;
+    void requestDailyCustomerToken(int phoneNumber) throws RemoteException;
 
     void requestMonthlyKeys(int bussinesNumber) throws RemoteException;
 }

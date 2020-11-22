@@ -67,7 +67,7 @@ public class Registrar implements RegistrarInterface {
 
 
     @Override
-    public void generateDailyCustomerToken(int phoneNumber) throws RemoteException {
+    public void requestDailyCustomerToken(int phoneNumber) throws RemoteException {
         SecretKeySpec[] tokens = new SecretKeySpec[48];
     }
 
