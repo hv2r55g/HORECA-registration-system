@@ -16,14 +16,12 @@ import java.util.Scanner;
 public class Bar extends UnicastRemoteObject implements BarInterface{
 
     private static int bussinesNumber;
-    private static SecretKeySpec masterSecretKey;
     private RegistrarInterface registrarInterface;
 
 
-    public Bar(int bussinesNumber, SecretKeySpec masterSecretKey) throws RemoteException {
+    public Bar(int bussinesNumber) throws RemoteException {
         super();
         Bar.bussinesNumber = bussinesNumber;
-        Bar.masterSecretKey =masterSecretKey;
     }
 
     public Bar() throws RemoteException {
@@ -41,7 +39,6 @@ public class Bar extends UnicastRemoteObject implements BarInterface{
         currentBar.registrarInterface = registrarInterface;
 
         //REQUEST MASTER SECRET KEY
-        currentBar.getMasterSecretKey();
 
         //HANDMATIGE INPUT
         Scanner sc = new Scanner(System.in);
@@ -51,19 +48,19 @@ public class Bar extends UnicastRemoteObject implements BarInterface{
         //RANDOM NUMBER INPUT
 
 
-        currentBar.getDailySecretKey(bussinesNumber, masterSecretKey);
+        currentBar.getDailySecretKey(bussinesNumber);
 
 
     }
 
-    private void getMasterSecretKey() throws RemoteException {
-        //METHODE OM MASTER SECRET KEY AAN TE VRAGEN AAN DE REGISTRAR
-        masterSecretKey = registrarInterface.getMasterSecretKey();
-    }
 
-    private void getDailySecretKey(int bussinesNumber, SecretKeySpec secretKeySpec) throws RemoteException {
+    private void getDailySecretKey(int bussinesNumber) throws RemoteException {
         //OMGAAN MET DE SECRET KEYS
         registrarInterface.getDailySecretKey(bussinesNumber);
+    }
+
+    private void requestMonthlyKeys(int bussinesNumber) throws RemoteException{
+        registrarInterface.requestMonthlyKeys(bussinesNumber);
     }
 
 }
