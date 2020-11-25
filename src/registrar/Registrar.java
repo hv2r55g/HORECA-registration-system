@@ -85,8 +85,8 @@ public class Registrar implements RegistrarInterface {
         String teHashenInfo = encodedKey + bussinesNumber + day;
         byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
         byte[] result = mac.doFinal(teHashenInfoInBytes);
-        String resultString = new String(result, StandardCharsets.UTF_8);
-        System.out.println("Hoe ziet zo'n hash eruit: " + resultString);
+        //String resultString = new String(result, StandardCharsets.UTF_8);
+        System.out.println("Hoe ziet zo'n hash eruit: " + result);
         return result;
     }
 
