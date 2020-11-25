@@ -1,8 +1,6 @@
 package customer;
 
 
-import bar.Bar;
-import bar.BarInterface;
 import registrar.RegistrarInterface;
 
 import java.net.MalformedURLException;
@@ -14,12 +12,13 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.List;
-import java.util.Scanner;
 
 public class Customer extends UnicastRemoteObject implements CustomerInterface {
     private String phoneNumber;
     private List tokens;
+    private String[] QRCodeInfo = new String[3];
     private RegistrarInterface registrarInterface;
+
 
     public Customer() throws RemoteException {
         super();
@@ -34,6 +33,13 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         tokens = registrarInterface.requestDailyCustomerToken(phoneNumber);
     }
 
+    private void requestQRCodeInfo(String PLAKDESTRINGHIER) throws RemoteException {
+        String[] temp = PLAKDESTRINGHIER.split(";");
+        for (int i = 0; i < temp.length; i++) {
+            QRCodeInfo[i] = temp[i];
+        }
+    }
+
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         //Scanner sc = new Scanner(System.in);
         //System.out.println("Geef uw gsm nummer: ");
@@ -41,7 +47,7 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         String phoneNumber = "0476836000";
         Customer currentCustomer = new Customer(phoneNumber);
 
-        //RMI OPZETTEN
+        //CONNECTEN MET REGISTRAR
         String hostname = "localhost";
         String clientService = "RegistrarListening";
         String servicename = "RegistrarService";
@@ -55,7 +61,11 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         //1 AANVRAAG (VAN 48 TOKENS) PER DAG, IEDERE TOKEN KAN MAAR 1 KEER GEBRUIKT WORDEN
         currentCustomer.requestTokens();
 
-        //WE BEZOEKEN EEN BAR
+        //WE BEZOEKEN EEN BAR, NORMAAL ONTVANGEN WE DE GEGEVENS VAN DE QR CODE
+        //AANGEZIEN WE GEEN APP MAKEN, RMI OPZETTEN TUSSEN BAR EN CUSTOMER VOOR DIE GEGEVENS OP TE VRAGEN
+        //DEZE COMMUNICATIE DIENT ENKEL MAAR OP DIE DAG GEGEVENS OP TE VRAGEN
+        String PLAKDESTRINGHIER = "";
+        currentCustomer.requestQRCodeInfo(PLAKDESTRINGHIER);
 
 
 

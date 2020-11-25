@@ -1,5 +1,6 @@
 package bar;
 
+import registrar.Registrar;
 import registrar.RegistrarInterface;
 
 import javax.crypto.Mac;
@@ -25,7 +26,7 @@ public class Bar extends UnicastRemoteObject implements BarInterface{
 
     private int bussinesNumber;
     private List mothlyHash;
-    private String QRcode;
+    private String[] QRcode;
     private RegistrarInterface registrarInterface;
 
     public Bar() throws RemoteException {
@@ -37,6 +38,33 @@ public class Bar extends UnicastRemoteObject implements BarInterface{
         this.bussinesNumber = bussinesNumber;
     }
 
+    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
+        //HANDMATIGE INPUT
+        //Scanner sc = new Scanner(System.in);
+        //System.out.println("Geef een bussiness number: ");
+        //int bussinesNumberFromScanner = sc.nextInt();
+        int bussinesNumberFromScanner = 1;
+
+        Bar currentBar = new Bar(bussinesNumberFromScanner);
+
+        //Connecten met de registrar
+        String hostname = "localhost";
+        String clientService = "RegistrarListening";
+        String servicename = "RegistrarService";
+        Naming.rebind("rmi://" + hostname + "/" + clientService, currentBar);
+        RegistrarInterface registrarInterface = (RegistrarInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
+        currentBar.registrarInterface = registrarInterface;
+
+        //1 KEER PER MAAND DE KEYS OPVRAGEN
+        currentBar.requestMonthlyHash();
+
+        //NU KEER SIMULEREN DAT WE DE HUIDIGE DAG WILLEN OPEN DOEN, DUS GEWOON EERSTE HASH UIT LIJST NEMEN
+        currentBar.createQRForToday();
+        currentBar.printQR();
+    }
+
+
+    //-------------------------------------------------------OVERIGE METHODES-------------------------------------------------------------------//
     private void requestMonthlyHash() throws RemoteException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
         mothlyHash = registrarInterface.requestMonthlyHash(bussinesNumber);
     }
@@ -68,38 +96,24 @@ public class Bar extends UnicastRemoteObject implements BarInterface{
         String teHashenInfo = randomGetal + mothlyHash.get(0);
         byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
         byte[] result = mac.doFinal(teHashenInfoInBytes);
-        //String resultString = new String(result, StandardCharsets.UTF_8);
-        System.out.println("Hoe ziet zo'n hash voor de QR code eruit: " + result);
+        String resultString = new String(result, StandardCharsets.UTF_8);
+        System.out.println("Hoe ziet zo'n hash voor de QR code eruit: " + resultString);
 
         //NOG DE 3 PARAMETERS OPSLAAN OM IN DE TOEKOMST EEN QR CODE TE MAKEN
-        this.QRcode = randomGetal + bussinesNumber + result;
-
+        QRcode = new String[3];
+        QRcode[0] = randomGetal;
+        QRcode[1] = Integer.toString(bussinesNumber);
+        QRcode[2] = resultString;
     }
 
-    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
-        //HANDMATIGE INPUT
-        //Scanner sc = new Scanner(System.in);
-        //System.out.println("Geef een bussiness number: ");
-        //int bussinesNumberFromScanner = sc.nextInt();
-
-        //RANDOM NUMBER INPUT
-        //TODO: Als we ooit niet steeds dat bussiness number willen ingeven
-        int bussinesNumberFromScanner = 1;
-
-        Bar currentBar = new Bar(bussinesNumberFromScanner);
-
-        //RMI OPZETTEN
-        String hostname = "localhost";
-        String clientService = "RegistrarListening";
-        String servicename = "RegistrarService";
-        Naming.rebind("rmi://" + hostname + "/" + clientService, currentBar);
-        RegistrarInterface registrarInterface = (RegistrarInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
-        currentBar.registrarInterface = registrarInterface;
-
-        //1 KEER PER MAAND DE KEYS OPVRAGEN
-        currentBar.requestMonthlyHash();
-
-        //NU KEER SIMULEREN DAT WE DE HUIDIGE DAG WILLEN OPEN DOEN, DUS GEWOON EERSTE HASH UIT LIJST NEMEN
-        currentBar.createQRForToday();
+    public void printQR(){
+        StringBuilder sb = new StringBuilder();
+        for (Object b: QRcode){
+            sb.append(b);
+            sb.append(";");
+        }
+        System.out.println(sb.toString());
     }
+    //------------------------------------------------------------------------------------------------------------------------------------------//
+
 }

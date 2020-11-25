@@ -5,6 +5,7 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -70,7 +71,7 @@ public class Registrar implements RegistrarInterface {
         return new SecretKeySpec(aesKeyData, "AES");
     }
 
-    private byte[] createHash(SecretKeySpec currentKey, int bussinesNumber, String day) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+    private String createHash(SecretKeySpec currentKey, int bussinesNumber, String day) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         //BRON: https://www.novixys.com/blog/hmac-sha256-message-authentication-mac-java/
         //BRON: https://examples.javacodegeeks.com/core-java/crypto/generate-message-authentication-code-mac/
 
@@ -85,9 +86,9 @@ public class Registrar implements RegistrarInterface {
         String teHashenInfo = encodedKey + bussinesNumber + day;
         byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
         byte[] result = mac.doFinal(teHashenInfoInBytes);
-        //String resultString = new String(result, StandardCharsets.UTF_8);
-        System.out.println("Hoe ziet zo'n hash eruit: " + result);
-        return result;
+        String resultString = new String(result, StandardCharsets.UTF_8);
+        System.out.println("Hoe ziet zo'n hash eruit: " + resultString);
+        return resultString;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------//
@@ -115,9 +116,9 @@ public class Registrar implements RegistrarInterface {
     }
 
     @Override
-    public List<byte[]> requestMonthlyHash(int bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+    public List<String> requestMonthlyHash(int bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         int aantalDagen = 5;
-        List<byte[]> monthlyHash = new ArrayList<>();
+        List<String> monthlyHash = new ArrayList<>();
 
         Date date = new Date();
         SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
@@ -125,7 +126,7 @@ public class Registrar implements RegistrarInterface {
 
         for (int i = 0; i < aantalDagen; i++) {
             SecretKeySpec key;
-            byte[] hash;
+            String hash;
             if (i == 0){
                 String currentDate = df.format(date);
                 //System.out.println(currentDate);
