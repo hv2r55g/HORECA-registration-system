@@ -11,7 +11,7 @@ public class CustomerGUI extends Application {
 
     public CustomerGUI(){}
 
-    public static void main(String[] args) {
+    public CustomerGUI(String[] args){
         launch(args);
     }
 

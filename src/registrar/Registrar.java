@@ -5,30 +5,30 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Registrar implements RegistrarInterface {
-
+    private int aantalTokensPerCustomer;
+    private String dagVanVandaag;
+    private Map<String,List> mappingTokens;
+    private KeyPair keyPairOfTheDay;
     private SecretKey masterKey;
 
     public Registrar() throws NoSuchAlgorithmException {
         super();
         createMasterKey();
-    }
-
-    public SecretKey getMasterKey() {
-        return masterKey;
-    }
-
-    public void setMasterKey(SecretKey masterKey) {
-        this.masterKey = masterKey;
+        aantalTokensPerCustomer = 20;
+        mappingTokens = new HashMap<>();
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+        keyPairOfTheDay = keyPairGenerator.generateKeyPair();
+        Date date = new Date();
+        SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
+        dagVanVandaag = df.format(date);
     }
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
@@ -95,8 +95,23 @@ public class Registrar implements RegistrarInterface {
     //-----------------------------------------------OVERIDE METHODES VAN DE INTERFACE----------------------------------------------------------//
 
     @Override
-    public void requestDailyCustomerToken(int phoneNumber) throws RemoteException {
-        SecretKeySpec[] tokens = new SecretKeySpec[48];
+    public List requestDailyCustomerToken(String phoneNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        System.out.println("Generate tokens for " + phoneNumber);
+        List<byte[]> tokens = new ArrayList<>();
+        for (int i = 0; i < aantalTokensPerCustomer; i++) {
+            Signature signature = Signature.getInstance("SHA256WithDSA");
+            SecureRandom secureRandom = new SecureRandom();
+            signature.initSign(keyPairOfTheDay.getPrivate(),secureRandom);
+            signature.update(dagVanVandaag.getBytes());
+            byte[] token = signature.sign();
+            tokens.add(token);
+        }
+
+        //NOG GAAN MAPPEN DAT WE DEZE TOKENS AAN DAT TELEFOONNUMMER GEGEVEN HEBBEN
+        mappingTokens.put(phoneNumber,tokens);
+
+        //AT THE END TOKENS NAAR GEBRUIKER STUREN
+        return tokens;
     }
 
     @Override
