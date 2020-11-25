@@ -1,14 +1,18 @@
 package registrar;
 
 import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 public class Registrar implements RegistrarInterface {
 
@@ -60,14 +64,30 @@ public class Registrar implements RegistrarInterface {
         masterKey = aesKey;
     }
 
-    public SecretKeySpec generateDailyKey(int businessNumber, Date date) throws RemoteException {
-
-        SimpleDateFormat formatter = new SimpleDateFormat("ddMMMMyyyy");
-        String strDate = formatter.format(date);
-
-        String keyData = masterKey.toString()+Integer.toString(businessNumber)+strDate;
+    public SecretKeySpec generateDailyKey(int businessNumber, String datum) throws RemoteException {
+        String keyData = masterKey.toString()+businessNumber+datum;
         byte[] aesKeyData = keyData.getBytes();
         return new SecretKeySpec(aesKeyData, "AES");
+    }
+
+    private byte[] createHash(SecretKeySpec currentKey, int bussinesNumber, String day) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        //BRON: https://www.novixys.com/blog/hmac-sha256-message-authentication-mac-java/
+        //BRON: https://examples.javacodegeeks.com/core-java/crypto/generate-message-authentication-code-mac/
+
+        //DE HASHFUNCTIE IS GEBASEERD OP DE DAILY KEY
+        //TODO: uitleggen waarom we voor deze gekozen hebben sws op de presentatie
+        String algoritme = "HMACSHA1";
+        Mac mac = Mac.getInstance(algoritme);
+        mac.init(currentKey);
+        //TE HASHEN DATA
+        String encodedKey = Base64.getEncoder().encodeToString(currentKey.getEncoded());
+        System.out.println("Zo ziet de encoded key eruit: " + encodedKey);
+        String teHashenInfo = encodedKey + bussinesNumber + day;
+        byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
+        byte[] result = mac.doFinal(teHashenInfoInBytes);
+        String resultString = new String(result, StandardCharsets.UTF_8);
+        System.out.println("Hoe ziet zo'n hash eruit: " + resultString);
+        return result;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------//
@@ -80,14 +100,37 @@ public class Registrar implements RegistrarInterface {
     }
 
     @Override
-    public SecretKeySpec[] requestMonthlyKeys(int bussinesNumber) throws RemoteException {
-        SecretKeySpec[] monthlyKeys = new SecretKeySpec[30];
-        for (int i = 0; i < 30; i++) {
-            Date d = new Date(new Date().getTime() + 86400000*i);
-            SecretKeySpec key = generateDailyKey(bussinesNumber, d);
-            monthlyKeys[i] = key;
+    public List<byte[]> requestMonthlyHash(int bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        int aantalDagen = 5;
+        List<byte[]> monthlyHash = new ArrayList<>();
+
+        Date date = new Date();
+        SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
+        Calendar c1 = Calendar.getInstance();
+
+        for (int i = 0; i < aantalDagen; i++) {
+            SecretKeySpec key;
+            byte[] hash;
+            if (i == 0){
+                String currentDate = df.format(date);
+                //System.out.println(currentDate);
+                key = generateDailyKey(bussinesNumber, currentDate);
+                hash = createHash(key,bussinesNumber,currentDate);
+            } else {
+                //1 DAG AAN DE CALENDAR TOEVOEGEN
+                c1.add(Calendar.DAY_OF_YEAR, 1);
+                Date nextDate = c1.getTime();
+                String dueDate = df.format(nextDate);
+                //System.out.println(dueDate);
+                key = generateDailyKey(bussinesNumber, dueDate);
+                hash = createHash(key,bussinesNumber,dueDate);
+            }
+            //NIET VERGETEN TOE TE VOEGEN AAN DE ARRAY
+            monthlyHash.add(hash);
         }
-        return monthlyKeys;
+
+
+        return monthlyHash;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------//

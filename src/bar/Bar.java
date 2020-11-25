@@ -2,8 +2,11 @@ package bar;
 
 import registrar.RegistrarInterface;
 
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.rmi.server.UnicastRemoteObject;
 import java.net.MalformedURLException;
 import java.rmi.ConnectException;
@@ -11,12 +14,18 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Bar extends UnicastRemoteObject implements BarInterface{
 
     private int bussinesNumber;
-    private SecretKeySpec[] mothlyKeys;
+    private List mothlyHash;
+    private String QRcode;
     private RegistrarInterface registrarInterface;
 
     public Bar() throws RemoteException {
@@ -28,18 +37,54 @@ public class Bar extends UnicastRemoteObject implements BarInterface{
         this.bussinesNumber = bussinesNumber;
     }
 
-    private void requestMonthlyKeys() throws RemoteException{
-        mothlyKeys = registrarInterface.requestMonthlyKeys(bussinesNumber);
+    private void requestMonthlyHash() throws RemoteException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
+        mothlyHash = registrarInterface.requestMonthlyHash(bussinesNumber);
     }
 
-    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
+    private void createQRForToday() throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        //BRON: https://www.novixys.com/blog/hmac-sha256-message-authentication-mac-java/
+        //BRON: https://examples.javacodegeeks.com/core-java/crypto/generate-message-authentication-code-mac/
+
+        //HIER OPNIEUW EEN HASHFUNCTIE MAKEN, MAAR GEBASEERD OP ANDERE ZAKEN
+        //QR STELLEN WE HIER GEWOON VOOR DOOR STRING VAN DE 3 PARAMETERS
+
+        //DE HASHFUNCTIE IS GEBASEERD OP RANDOM NUMBER
+        Random random = new Random();
+        int maxGetal = 9999;
+        String randomGetal = Integer.toString(random.nextInt(maxGetal));
+        System.out.println("Random getal voor vandaag: " + randomGetal);
+
+        //KEY MAKEN WAAROP DE HASHFUNCTIE GEBASEERD IS
+        byte[] aesKeyData = randomGetal.getBytes();
+        SecretKeySpec keyHashFunction = new SecretKeySpec(aesKeyData, "AES");
+
+        //HASHFUNCTIE INITIALISEREN EN LATEN UITVOEREN
+        //TODO: uitleggen waarom we voor deze gekozen hebben sws op de presentatie
+        String algoritme = "HMACSHA1";
+        Mac mac = Mac.getInstance(algoritme);
+        mac.init(keyHashFunction);
+        //TE HASHEN DATA
+        //TODO: hier naar de demo wss niet zomaar eerste hash nemen
+        String teHashenInfo = randomGetal + mothlyHash.get(0);
+        byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
+        byte[] result = mac.doFinal(teHashenInfoInBytes);
+        String resultString = new String(result, StandardCharsets.UTF_8);
+        System.out.println("Hoe ziet zo'n hash voor de QR code eruit: " + resultString);
+
+        //NOG DE 3 PARAMETERS OPSLAAN OM IN DE TOEKOMST EEN QR CODE TE MAKEN
+        this.QRcode = randomGetal + bussinesNumber + resultString;
+
+    }
+
+    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
         //HANDMATIGE INPUT
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Geef een bussiness number: ");
-        int bussinesNumberFromScanner = sc.nextInt();
+        //Scanner sc = new Scanner(System.in);
+        //System.out.println("Geef een bussiness number: ");
+        //int bussinesNumberFromScanner = sc.nextInt();
 
         //RANDOM NUMBER INPUT
         //TODO: Als we ooit niet steeds dat bussiness number willen ingeven
+        int bussinesNumberFromScanner = 1;
 
         Bar currentBar = new Bar(bussinesNumberFromScanner);
 
@@ -52,6 +97,9 @@ public class Bar extends UnicastRemoteObject implements BarInterface{
         currentBar.registrarInterface = registrarInterface;
 
         //1 KEER PER MAAND DE KEYS OPVRAGEN
-        currentBar.requestMonthlyKeys();
+        currentBar.requestMonthlyHash();
+
+        //NU KEER SIMULEREN DAT WE DE HUIDIGE DAG WILLEN OPEN DOEN, DUS GEWOON EERSTE HASH UIT LIJST NEMEN
+        currentBar.createQRForToday();
     }
 }
