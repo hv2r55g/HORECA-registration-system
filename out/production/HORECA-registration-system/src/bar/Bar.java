@@ -1,28 +1,20 @@
 package bar;
 
-import registrar.Registrar;
 import registrar.RegistrarInterface;
 
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.net.MalformedURLException;
-import java.rmi.ConnectException;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
-public class Bar extends UnicastRemoteObject implements BarInterface{
+public class Bar extends UnicastRemoteObject implements Remote {
 
     private int bussinesNumber;
     private List mothlyHash;
@@ -107,12 +99,7 @@ public class Bar extends UnicastRemoteObject implements BarInterface{
     }
 
     public void printQR(){
-        StringBuilder sb = new StringBuilder();
-        for (Object b: QRcode){
-            sb.append(b);
-            sb.append(";");
-        }
-        System.out.println(sb.toString());
+        System.out.println(QRcode[0]+";"+QRcode[1]+";"+QRcode[2]+";");
     }
     //------------------------------------------------------------------------------------------------------------------------------------------//
 

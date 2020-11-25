@@ -99,12 +99,7 @@ public class Bar extends UnicastRemoteObject implements Remote {
     }
 
     public void printQR(){
-        StringBuilder sb = new StringBuilder();
-        for (Object b: QRcode){
-            sb.append(b);
-            sb.append(";");
-        }
-        System.out.println(sb.toString());
+        System.out.println(QRcode[0]+";"+QRcode[1]+";"+QRcode[2]+";");
     }
     //------------------------------------------------------------------------------------------------------------------------------------------//
 
