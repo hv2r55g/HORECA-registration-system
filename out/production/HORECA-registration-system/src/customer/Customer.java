@@ -24,9 +24,7 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
     private MixingProxyInterface mixingProxyInterface;
 
 
-    public Customer() throws RemoteException {
-        super();
-    }
+    public Customer() throws RemoteException{}
 
     public Customer(String phoneNumber) throws RemoteException {
         super();

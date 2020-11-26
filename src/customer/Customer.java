@@ -24,9 +24,7 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
     private MixingProxyInterface mixingProxyInterface;
 
 
-    public Customer() throws RemoteException {
-        super();
-    }
+    public Customer() throws RemoteException{}
 
     public Customer(String phoneNumber) throws RemoteException {
         super();
@@ -46,7 +44,7 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
 
         //CAPSULE OPMAKEN
         Capsule capsule = new Capsule(bezoek.getTimestamp(),tokens.get(0),bezoek.getHashBar());
-        //mixingProxyInterface.sendCapsule(capsule);
+        mixingProxyInterface.sendCapsule(capsule);
 
         //GEBRUIKT TOKEN VERWIJDEREN
         tokens.remove(0);

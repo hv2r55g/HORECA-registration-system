@@ -32,4 +32,14 @@ public class Bezoek {
         Timestamp ts = new Timestamp(time);
         this.timestamp = ts.toString();
     }
+
+    @Override
+    public String toString() {
+        return "Bezoek{" +
+                "timestamp='" + timestamp + '\'' +
+                ", randomIntBar='" + randomIntBar + '\'' +
+                ", businessNumberBar='" + businessNumberBar + '\'' +
+                ", hashBar='" + hashBar + '\'' +
+                '}';
+    }
 }

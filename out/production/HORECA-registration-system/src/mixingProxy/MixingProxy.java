@@ -48,6 +48,8 @@ public class MixingProxy implements MixingProxyInterface, Remote {
 
     @Override
     public void sendCapsule(Capsule capsule) throws RemoteException {
+        System.out.println("Capsule ontvangen");
+        System.out.println(capsule.toString());
         capsules.add(capsule);
     }
 

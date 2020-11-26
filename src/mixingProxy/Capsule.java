@@ -1,6 +1,8 @@
 package mixingProxy;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.util.Arrays;
 
 public class Capsule implements Serializable{
     private static final long serialVersionUID = 20120731125400L;
@@ -15,5 +17,14 @@ public class Capsule implements Serializable{
         this.timestampBezoek = timestampBezoek;
         this.tokenCustomer = tokenCustomer;
         this.hashBar = hashBar;
+    }
+
+    @Override
+    public String toString() {
+        return "Capsule{" +
+                "timestampBezoek='" + timestampBezoek + '\'' +
+                ", tokenCustomer=" + Arrays.toString(tokenCustomer) +
+                ", hashBar='" + hashBar + '\'' +
+                '}';
     }
 }
