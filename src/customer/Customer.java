@@ -42,7 +42,7 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         //BEZOEK LOKAAL OPSLAAN + CAPSULE DOORSTUREN NAAR MIXING PROXY
         String[] temp = PLAKDESTRINGHIER.split(";");
         Bezoek bezoek = new Bezoek(temp[0], temp[1], temp[2]);
-        bezoeken.add(bezoek);
+
 
         //CAPSULE OPMAKEN
         Capsule capsule = new Capsule(bezoek.getTimestamp(), bezoek.getDay(), tokens.get(0), bezoek.getHashBar());
@@ -55,7 +55,8 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         if (doSign){
             //dan moet men de sign ontvangen
             mixingProxyInterface.signCapsule(capsule);
-            System.out.println(mixingProxyInterface.signCapsule(capsule));
+            bezoeken.add(bezoek);
+            System.out.println("Dit is de bytearray van de sign: "+mixingProxyInterface.signCapsule(capsule));
         } else{
             System.out.println("bezoek gefailed, waarschijnlijk door een check");
         }
