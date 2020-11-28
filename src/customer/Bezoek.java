@@ -1,6 +1,7 @@
 package customer;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Bezoek {
@@ -8,6 +9,7 @@ public class Bezoek {
     private String randomIntBar;
     private String businessNumberBar;
     private String hashBar;
+    private String day;
 
     public String getTimestamp() {
         return timestamp;
@@ -18,6 +20,10 @@ public class Bezoek {
     }
 
     public Bezoek(){}
+
+    public String getDay() {
+        return day;
+    }
 
     public Bezoek(String randomIntBar, String businessNumberBar, String hashBar) {
         this.randomIntBar = randomIntBar;
@@ -31,6 +37,10 @@ public class Bezoek {
         //Passed the milliseconds to constructor of Timestamp class
         Timestamp ts = new Timestamp(time);
         this.timestamp = ts.toString();
+
+        SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
+        String dagVanVandaag = df.format(date);
+        this.day = dagVanVandaag;
     }
 
     @Override

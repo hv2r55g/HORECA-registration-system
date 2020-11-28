@@ -13,6 +13,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,8 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
     private MixingProxyInterface mixingProxyInterface;
 
 
-    public Customer() throws RemoteException{}
+    public Customer() throws RemoteException {
+    }
 
     public Customer(String phoneNumber) throws RemoteException {
         super();
@@ -36,21 +38,32 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         tokens = registrarInterface.requestDailyCustomerToken(phoneNumber);
     }
 
-    private void bezoekBar(String PLAKDESTRINGHIER) throws RemoteException {
+    private void bezoekBar(String PLAKDESTRINGHIER) throws RemoteException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
         //BEZOEK LOKAAL OPSLAAN + CAPSULE DOORSTUREN NAAR MIXING PROXY
         String[] temp = PLAKDESTRINGHIER.split(";");
-        Bezoek bezoek = new Bezoek(temp[0],temp[1],temp[2]);
+        Bezoek bezoek = new Bezoek(temp[0], temp[1], temp[2]);
         bezoeken.add(bezoek);
 
         //CAPSULE OPMAKEN
-        Capsule capsule = new Capsule(bezoek.getTimestamp(),tokens.get(0),bezoek.getHashBar());
-        mixingProxyInterface.sendCapsule(capsule);
+        Capsule capsule = new Capsule(bezoek.getTimestamp(), bezoek.getDay(), tokens.get(0), bezoek.getHashBar());
 
+        //sendCapsule is een boolean geworden die de checks gaat uitvoeren en true geeft als het gelukt is
+        //wnr true gaat de mixing het opslaan en het signen
+        //wnr true vragen we de sign op!!!
+        mixingProxyInterface.sendCapsule(capsule);
+        boolean doSign = mixingProxyInterface.sendCapsule(capsule);
+        if (doSign){
+            //dan moet men de sign ontvangen
+            mixingProxyInterface.signCapsule(capsule);
+            System.out.println(mixingProxyInterface.signCapsule(capsule));
+        } else{
+            System.out.println("bezoek gefailed, waarschijnlijk door een check");
+        }
         //GEBRUIKT TOKEN VERWIJDEREN
         tokens.remove(0);
     }
 
-    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
         //Scanner sc = new Scanner(System.in);
         //System.out.println("Geef uw gsm nummer: ");
         //int phoneNumber = sc.nextInt();

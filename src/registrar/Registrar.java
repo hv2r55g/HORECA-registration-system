@@ -20,6 +20,26 @@ public class Registrar implements RegistrarInterface {
     private KeyPair keyPairOfTheDay;
     private SecretKey masterKey;
 
+    public int getAantalTokensPerCustomer() {
+        return aantalTokensPerCustomer;
+    }
+
+
+
+    public Map<String, List> getMappingTokens() {
+        return mappingTokens;
+    }
+
+    public PrivateKey getPrivateKeyOfTheDay(){
+        return keyPairOfTheDay.getPrivate();
+    }
+
+
+
+    public SecretKey getMasterKey() {
+        return masterKey;
+    }
+
     public Registrar() throws NoSuchAlgorithmException {
         super();
         createMasterKey();
@@ -113,6 +133,21 @@ public class Registrar implements RegistrarInterface {
 
         //AT THE END TOKENS NAAR GEBRUIKER STUREN
         return tokens;
+    }
+
+    @Override
+    public PublicKey getPublicKeyOfTheDay() {
+        return keyPairOfTheDay.getPublic();
+    }
+
+    @Override
+    public PrivateKey getPrivatekeyOftheDay() throws RemoteException {
+        return keyPairOfTheDay.getPrivate();
+    }
+
+    @Override
+    public String getDagVanVandaag() throws RemoteException {
+        return dagVanVandaag;
     }
 
     @Override
