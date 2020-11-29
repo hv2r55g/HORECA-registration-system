@@ -99,7 +99,7 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         //Scanner sc = new Scanner(System.in);
         //System.out.println("Geef uw gsm nummer: ");
         //int phoneNumber = sc.nextInt();
-        String phoneNumber = "0476836000";
+        String phoneNumber = "123456789";
         Customer currentCustomer = new Customer(phoneNumber);
 
         //CONNECTEN MET REGISTRAR
