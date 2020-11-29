@@ -20,47 +20,57 @@ import java.util.List;
 public class Customer extends UnicastRemoteObject implements CustomerInterface {
     private String phoneNumber;
     private List<byte[]> tokens;
+    private byte[] currentToken;
     private List<Bezoek> bezoeken;
+    private String[] QRcodeCurrentBar;
     private RegistrarInterface registrarInterface;
     private MixingProxyInterface mixingProxyInterface;
 
 
-    public Customer() throws RemoteException {
-    }
+    public Customer() throws RemoteException {}
 
     public Customer(String phoneNumber) throws RemoteException {
-        super();
         this.phoneNumber = phoneNumber;
         this.bezoeken = new ArrayList();
+        QRcodeCurrentBar = new String[3];
     }
 
     private void requestTokens() throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         tokens = registrarInterface.requestDailyCustomerToken(phoneNumber);
     }
 
-    private void bezoekBar(String PLAKDESTRINGHIER) throws RemoteException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
-        //BEZOEK LOKAAL OPSLAAN + CAPSULE DOORSTUREN NAAR MIXING PROXY
-        String[] temp = PLAKDESTRINGHIER.split(";");
-        Bezoek bezoek = new Bezoek(temp[0], temp[1], temp[2]);
-        bezoeken.add(bezoek);
+    private void bezoekBar() throws RemoteException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
+        if (!tokens.isEmpty()) {
+            //CAPSULE OPMAKEN
+            currentToken = tokens.get(0);
+            Capsule capsule = new Capsule(currentToken, QRcodeCurrentBar[2]);
 
-        //CAPSULE OPMAKEN
-        Capsule capsule = new Capsule(bezoek.getTimestamp(), bezoek.getDay(), tokens.get(0), bezoek.getHashBar());
-
-        //sendCapsule is een boolean geworden die de checks gaat uitvoeren en true geeft als het gelukt is
-        //wnr true gaat de mixing het opslaan en het signen
-        //wnr true vragen we de sign op!!!
-        mixingProxyInterface.sendCapsule(capsule);
-        boolean doSign = mixingProxyInterface.sendCapsule(capsule);
-        if (doSign){
-            //dan moet men de sign ontvangen
-            mixingProxyInterface.signCapsule(capsule);
-            System.out.println(mixingProxyInterface.signCapsule(capsule));
-        } else{
-            System.out.println("bezoek gefailed, waarschijnlijk door een check");
+            //sendCapsule is een boolean geworden die de checks gaat uitvoeren en true geeft als het gelukt is
+            //wnr true gaat de mixing het opslaan en het signen
+            //wnr true vragen we de sign op!!!
+            //mixingProxyInterface.sendCapsule(capsule);
+            boolean doSign = mixingProxyInterface.sendCapsule(capsule);
+            if (doSign) {
+                //dan moet men de sign ontvangen
+                //TODO: moet signature opgeslagen worden?
+                mixingProxyInterface.signCapsule(capsule);
+                //BEZOEK LOKAAL OPSLAAN
+                Bezoek bezoek = new Bezoek(capsule.getTimestampEntered(),QRcodeCurrentBar[0],QRcodeCurrentBar[1],QRcodeCurrentBar[2]);
+                bezoeken.add(bezoek);
+                System.out.println("Dit is de bytearray van de sign: " + mixingProxyInterface.signCapsule(capsule));
+            } else {
+                //TODO: Hier wss nog kiezen voor een andere token proberen
+                System.out.println("bezoek gefailed, waarschijnlijk door een check");
+            }
+            //GEBRUIKT TOKEN VERWIJDEREN
+            tokens.remove(0);
+        } else {
+            System.out.println("U kan deze bar helaas niet meer bezoeken, uw tokens voor vandaag zijn verbruikt");
         }
-        //GEBRUIKT TOKEN VERWIJDEREN
-        tokens.remove(0);
+    }
+
+    private void verlaatBar() throws RemoteException {
+        mixingProxyInterface.requestLeaving(currentToken);
     }
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
@@ -92,9 +102,21 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         currentCustomer.requestTokens();
 
         //WE BEZOEKEN EEN BAR, TIJDELIJK PLAKKEN WE HIER ALLE QR CODE INFO
-        String PLAKDESTRINGHIER = "2662;1;����\u001C���J48U�\u0003�;9~\u001E�;";
-        currentCustomer.bezoekBar(PLAKDESTRINGHIER);
+        String PLAKDESTRINGHIER = "1477;1;��,\u001E�k��Ks���\u001CO�iD�;";
+        //KAN MISSCHIEN IN METHODKE VO CLEANER
+        String[] temp = PLAKDESTRINGHIER.split(";");
+        currentCustomer.QRcodeCurrentBar[0] = temp[0];
+        currentCustomer.QRcodeCurrentBar[1] = temp[1];
+        currentCustomer.QRcodeCurrentBar[2] = temp[2];
+
+
+        //SIMULATIE BEZOEKEN
+        currentCustomer.bezoekBar();
+        
+        currentCustomer.bezoekBar();
+
+
+
 
     }
-
 }

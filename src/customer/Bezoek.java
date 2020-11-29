@@ -5,13 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Bezoek {
-    private String timestamp;
+    private long timestamp;
     private String randomIntBar;
     private String businessNumberBar;
     private String hashBar;
-    private String day;
 
-    public String getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
@@ -21,26 +20,11 @@ public class Bezoek {
 
     public Bezoek(){}
 
-    public String getDay() {
-        return day;
-    }
-
-    public Bezoek(String randomIntBar, String businessNumberBar, String hashBar) {
+    public Bezoek(long timestamp,String randomIntBar, String businessNumberBar, String hashBar) {
+        this.timestamp = timestamp;
         this.randomIntBar = randomIntBar;
         this.businessNumberBar = businessNumberBar;
         this.hashBar = hashBar;
-
-        //Date object
-        Date date= new Date();
-        //getTime() returns current time in milliseconds
-        long time = date.getTime();
-        //Passed the milliseconds to constructor of Timestamp class
-        Timestamp ts = new Timestamp(time);
-        this.timestamp = ts.toString();
-
-        SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
-        String dagVanVandaag = df.format(date);
-        this.day = dagVanVandaag;
     }
 
     @Override

@@ -9,17 +9,14 @@ import java.util.Date;
 public class Capsule implements Serializable{
     private static final long serialVersionUID = 20120731125400L;
 
-    private String timestampBezoek;
+    private long timestampEntered;
+    private long timestampLeaving;
     private byte[] tokenCustomer;
     private String hashBar;
     private String dagBezoek;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
-    }
-
-    public String getTimestampBezoek() {
-        return timestampBezoek;
     }
 
     public byte[] getTokenCustomer() {
@@ -34,21 +31,41 @@ public class Capsule implements Serializable{
         return dagBezoek;
     }
 
+    public long getTimestampEntered() { return timestampEntered; }
+
+    public long getTimestampLeaving() { return timestampLeaving; }
+
+    public void setDagBezoek(String dagBezoek) { this.dagBezoek = dagBezoek; }
+
+    public void setTimestampEntered(long timestampEntered) { this.timestampEntered = timestampEntered; }
+
+    public void setTimestampLeaving(long timestampLeaving) {
+        this.timestampLeaving = timestampLeaving;
+    }
+
     public Capsule(){}
 
-    public Capsule(String timestampBezoek, String dag, byte[] tokenCustomer, String hashBar) {
-        this.timestampBezoek = timestampBezoek;
-        this.dagBezoek = dag;
+    public Capsule(byte[] tokenCustomer, String hashBar) {
         this.tokenCustomer = tokenCustomer;
         this.hashBar = hashBar;
+    }
+
+    public boolean isErOverlap(Capsule infected){
+        //BEREKEN OF ER OVERLAP IS WAARBIJ
+        if (timestampLeaving > infected.getTimestampEntered() && infected.getTimestampLeaving() > timestampEntered){
+            return true;
+        }
+        return false;
     }
 
     @Override
     public String toString() {
         return "Capsule{" +
-                "timestampBezoek='" + timestampBezoek + '\'' +
+                "timestampEntered=" + timestampEntered +
+                ", timestampLeaving=" + timestampLeaving +
                 ", tokenCustomer=" + Arrays.toString(tokenCustomer) +
                 ", hashBar='" + hashBar + '\'' +
+                ", dagBezoek='" + dagBezoek + '\'' +
                 '}';
     }
 }

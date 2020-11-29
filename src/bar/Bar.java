@@ -21,12 +21,9 @@ public class Bar extends UnicastRemoteObject implements Remote {
     private String[] QRcode;
     private RegistrarInterface registrarInterface;
 
-    public Bar() throws RemoteException {
-        super();
-    }
+    public Bar() throws RemoteException {}
 
     public Bar(int bussinesNumber) throws RemoteException {
-        super();
         this.bussinesNumber = bussinesNumber;
     }
 
@@ -89,7 +86,7 @@ public class Bar extends UnicastRemoteObject implements Remote {
         byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
         byte[] result = mac.doFinal(teHashenInfoInBytes);
         String resultString = new String(result, StandardCharsets.UTF_8);
-        System.out.println("Hoe ziet zo'n hash voor de QR code eruit: " + resultString);
+        //System.out.println("Hoe ziet zo'n hash voor de QR code eruit: " + resultString);
 
         //NOG DE 3 PARAMETERS OPSLAAN OM IN DE TOEKOMST EEN QR CODE TE MAKEN
         QRcode = new String[3];

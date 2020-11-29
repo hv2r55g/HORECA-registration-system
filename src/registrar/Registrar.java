@@ -24,8 +24,6 @@ public class Registrar implements RegistrarInterface {
         return aantalTokensPerCustomer;
     }
 
-
-
     public Map<String, List> getMappingTokens() {
         return mappingTokens;
     }
@@ -34,14 +32,11 @@ public class Registrar implements RegistrarInterface {
         return keyPairOfTheDay.getPrivate();
     }
 
-
-
     public SecretKey getMasterKey() {
         return masterKey;
     }
 
     public Registrar() throws NoSuchAlgorithmException {
-        super();
         createMasterKey();
         aantalTokensPerCustomer = 20;
         mappingTokens = new HashMap<>();
@@ -102,12 +97,12 @@ public class Registrar implements RegistrarInterface {
         mac.init(currentKey);
         //TE HASHEN DATA
         String encodedKey = Base64.getEncoder().encodeToString(currentKey.getEncoded());
-        System.out.println("Zo ziet de encoded key eruit: " + encodedKey);
+        //System.out.println("Zo ziet de encoded key eruit: " + encodedKey);
         String teHashenInfo = encodedKey + bussinesNumber + day;
         byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
         byte[] result = mac.doFinal(teHashenInfoInBytes);
         String resultString = new String(result, StandardCharsets.UTF_8);
-        System.out.println("Hoe ziet zo'n hash eruit: " + resultString);
+        //System.out.println("Hoe ziet zo'n hash eruit: " + resultString);
         return resultString;
     }
 
@@ -152,6 +147,7 @@ public class Registrar implements RegistrarInterface {
 
     @Override
     public List<String> requestMonthlyHash(int bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        System.out.println("Create mothly keys for: " + bussinesNumber);
         int aantalDagen = 5;
         List<String> monthlyHash = new ArrayList<>();
 
@@ -179,8 +175,6 @@ public class Registrar implements RegistrarInterface {
             //NIET VERGETEN TOE TE VOEGEN AAN DE ARRAY
             monthlyHash.add(hash);
         }
-
-
         return monthlyHash;
     }
 
