@@ -3,16 +3,13 @@ package mixingProxy;
 import matchingService.MatchingServiceInterface;
 import registrar.RegistrarInterface;
 
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +38,8 @@ public class MixingProxy implements MixingProxyInterface, Remote {
         String servicenameReg = "RegistrarService";
         String servicenameMatchingServer = "MatchingServiceService";
 
-        MixingProxy mixingProxy = new MixingProxy();
         try {
-
+            MixingProxy mixingProxy = new MixingProxy();
             MixingProxyInterface stub = (MixingProxyInterface) UnicastRemoteObject.exportObject(mixingProxy, 0);
             Naming.rebind("rmi://" + hostname + "/" + servicename, stub);
             System.out.println("RMI Server Mixing Proxy successful started");
@@ -214,7 +210,7 @@ public class MixingProxy implements MixingProxyInterface, Remote {
     }
 
     @Override
-    public void requestLeaving(byte[] currentToken) throws RemoteException {
+    public Capsule requestLeaving(byte[] currentToken) throws RemoteException {
         //TOKEN GAAN ZOEKEN EN EIND TIMESTAMP AAN TOEVOEGEN
         for (Capsule c: capsules){
             if (Arrays.equals(c.getTokenCustomer(),currentToken)){
@@ -222,9 +218,12 @@ public class MixingProxy implements MixingProxyInterface, Remote {
                 c.setTimestampLeaving(System.currentTimeMillis());
                 //System.out.println("Capsule na: " + c.toString());
                 //NORMAAL ZAL TOKEN UNIEK ZIJN EN MAG DE FORLOOP STOPPEN
-                break;
+                return c;
             }
         }
+
+        //NORMAAL ZAL HIJ ALTIJD CAPSULE VINDEN
+        return null;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------//

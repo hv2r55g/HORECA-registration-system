@@ -12,5 +12,5 @@ public interface MixingProxyInterface extends Remote {
 
     byte[] signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException;
 
-    void requestLeaving(byte[] currentToken) throws RemoteException;
+    Capsule requestLeaving(byte[] currentToken) throws RemoteException;
 }

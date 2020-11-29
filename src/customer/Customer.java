@@ -5,7 +5,9 @@ import mixingProxy.Capsule;
 import mixingProxy.MixingProxyInterface;
 import registrar.RegistrarInterface;
 
+import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -54,9 +56,6 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
                 //dan moet men de sign ontvangen
                 //TODO: moet signature opgeslagen worden?
                 mixingProxyInterface.signCapsule(capsule);
-                //BEZOEK LOKAAL OPSLAAN
-                Bezoek bezoek = new Bezoek(capsule.getTimestampEntered(),QRcodeCurrentBar[0],QRcodeCurrentBar[1],QRcodeCurrentBar[2]);
-                bezoeken.add(bezoek);
                 System.out.println("Dit is de bytearray van de sign: " + mixingProxyInterface.signCapsule(capsule));
             } else {
                 //TODO: Hier wss nog kiezen voor een andere token proberen
@@ -70,7 +69,30 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
     }
 
     private void verlaatBar() throws RemoteException {
-        mixingProxyInterface.requestLeaving(currentToken);
+        //LEAVING TIME IN CAPSULE GAAN FIXEN, TERGELIJK NOG KEER DAT OBECT TERUGSTUREN VOOR ONS BEZOEK AAN TE MAKEN
+        Capsule currentCapsule = mixingProxyInterface.requestLeaving(currentToken);
+        //BEZOEK LOKAAL OPSLAAN
+        Bezoek bezoek = new Bezoek(currentCapsule.getTimestampEntered(),currentCapsule.getTimestampLeaving(),QRcodeCurrentBar[0],QRcodeCurrentBar[1],QRcodeCurrentBar[2]);
+        bezoeken.add(bezoek);
+    }
+
+    private void stuurGegevensNaarDokter() {
+        try{
+            String path = "src/DoktersBestanden/";
+            String fileName = phoneNumber + ".csv";
+            File file = new File(path+fileName);
+            BufferedWriter bf = new BufferedWriter(new FileWriter(file));
+            bf.append("Timestamp entering;Timestamp leaving;Random number bar;Bussiness number bar;Hash bar");
+            bf.newLine();
+            for (Bezoek b : bezoeken){
+                bf.append(b.getTimestampEntered() + ";" + b.getTimestampLeaving()+ ";" + b.getRandomIntBar()+ ";" + b.getBusinessNumberBar()+ ";" + b.getHashBar());
+                bf.newLine();
+            }
+            bf.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
@@ -115,6 +137,9 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         currentCustomer.verlaatBar();
         currentCustomer.bezoekBar();
         currentCustomer.verlaatBar();
+
+        //DB NAAR DE DOKTER
+        currentCustomer.stuurGegevensNaarDokter();
 
 
 

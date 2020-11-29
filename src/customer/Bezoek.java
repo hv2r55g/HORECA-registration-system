@@ -1,17 +1,26 @@
 package customer;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public class Bezoek {
-    private long timestamp;
+    private long timestampEntered;
+    private long timestampLeaving;
     private String randomIntBar;
     private String businessNumberBar;
     private String hashBar;
 
-    public long getTimestamp() {
-        return timestamp;
+    public long getTimestampEntered() {
+        return timestampEntered;
+    }
+
+    public long getTimestampLeaving() {
+        return timestampLeaving;
+    }
+
+    public String getRandomIntBar() {
+        return randomIntBar;
+    }
+
+    public String getBusinessNumberBar() {
+        return businessNumberBar;
     }
 
     public String getHashBar() {
@@ -20,8 +29,9 @@ public class Bezoek {
 
     public Bezoek(){}
 
-    public Bezoek(long timestamp,String randomIntBar, String businessNumberBar, String hashBar) {
-        this.timestamp = timestamp;
+    public Bezoek(long timestampEntered,long timestampLeaving,String randomIntBar, String businessNumberBar, String hashBar) {
+        this.timestampEntered = timestampEntered;
+        this.timestampLeaving = timestampLeaving;
         this.randomIntBar = randomIntBar;
         this.businessNumberBar = businessNumberBar;
         this.hashBar = hashBar;
@@ -30,7 +40,7 @@ public class Bezoek {
     @Override
     public String toString() {
         return "Bezoek{" +
-                "timestamp='" + timestamp + '\'' +
+                "timestamp='" + timestampEntered + '\'' +
                 ", randomIntBar='" + randomIntBar + '\'' +
                 ", businessNumberBar='" + businessNumberBar + '\'' +
                 ", hashBar='" + hashBar + '\'' +
