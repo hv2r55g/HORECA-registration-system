@@ -16,6 +16,7 @@ import java.util.*;
 public class Registrar implements RegistrarInterface {
     private int aantalTokensPerCustomer;
     private String dagVanVandaag;
+    private Map<String,List> mappingHashBars;   //Key: Datum; Values: List van nyms die gemaakt zijn die dag
     private Map<String,List> mappingTokens;
     private KeyPair keyPairOfTheDay;
     private SecretKey masterKey;
@@ -103,6 +104,7 @@ public class Registrar implements RegistrarInterface {
         byte[] result = mac.doFinal(teHashenInfoInBytes);
         String resultString = new String(result, StandardCharsets.UTF_8);
         //System.out.println("Hoe ziet zo'n hash eruit: " + resultString);
+        //TODO: nog otevoegen aan de mapping
         return resultString;
     }
 

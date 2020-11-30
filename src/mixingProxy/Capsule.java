@@ -48,6 +48,8 @@ public class Capsule implements Serializable{
     public Capsule(byte[] tokenCustomer, String hashBar) {
         this.tokenCustomer = tokenCustomer;
         this.hashBar = hashBar;
+        this.timestampEntered = -1;
+        this.timestampLeaving = -1;
     }
 
     public boolean isErOverlap(Capsule infected){

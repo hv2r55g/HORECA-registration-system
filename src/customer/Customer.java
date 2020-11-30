@@ -50,15 +50,12 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
             //sendCapsule is een boolean geworden die de checks gaat uitvoeren en true geeft als het gelukt is
             //wnr true gaat de mixing het opslaan en het signen
             //wnr true vragen we de sign op!!!
-            //mixingProxyInterface.sendCapsule(capsule);
             boolean doSign = mixingProxyInterface.sendCapsule(capsule);
             if (doSign) {
                 //dan moet men de sign ontvangen
-                //TODO: moet signature opgeslagen worden?
-                mixingProxyInterface.signCapsule(capsule);
-                System.out.println("Dit is de bytearray van de sign: " + mixingProxyInterface.signCapsule(capsule));
+                byte[] signedCapsule = mixingProxyInterface.signCapsule(capsule);
+                System.out.println("Dit is de bytearray van de sign: " + signedCapsule);
             } else {
-                //TODO: Hier wss nog kiezen voor een andere token proberen
                 System.out.println("bezoek gefailed, waarschijnlijk door een check");
             }
             //GEBRUIKT TOKEN VERWIJDEREN
