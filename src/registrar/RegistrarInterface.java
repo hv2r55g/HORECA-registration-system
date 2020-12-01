@@ -1,5 +1,8 @@
 package registrar;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+
 import java.io.UnsupportedEncodingException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -17,6 +20,8 @@ public interface RegistrarInterface extends Remote {
     PrivateKey getPrivatekeyOftheDay() throws RemoteException;
 
     String getDagVanVandaag() throws RemoteException;
+
+    ListMultimap<String, String> getMappingDayNyms() throws RemoteException;
 
 }
 
