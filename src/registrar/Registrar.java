@@ -12,11 +12,14 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 
 public class Registrar implements RegistrarInterface {
     private int aantalTokensPerCustomer;
     private String dagVanVandaag;
-    private Map<String,List> mappingHashBars;   //Key: Datum; Values: List van nyms die gemaakt zijn die dag
+    //private Map<String,List> mappingHashBars;   //Key: Datum; Values: List van nyms die gemaakt zijn die dag
+    private ListMultimap<String, String> mappingDayNyms = ArrayListMultimap.create();
     private Map<String,List> mappingTokens;
     private KeyPair keyPairOfTheDay;
     private SecretKey masterKey;
@@ -148,6 +151,11 @@ public class Registrar implements RegistrarInterface {
     }
 
     @Override
+    public ListMultimap<String, String> getMappingDayNyms() throws RemoteException {
+        return mappingDayNyms;
+    }
+
+    @Override
     public List<String> requestMonthlyHash(int bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         System.out.println("Create mothly keys for: " + bussinesNumber);
         int aantalDagen = 5;
@@ -165,6 +173,7 @@ public class Registrar implements RegistrarInterface {
                 //System.out.println(currentDate);
                 key = generateDailyKey(bussinesNumber, currentDate);
                 hash = createHash(key,bussinesNumber,currentDate);
+                mappingDayNyms.put(currentDate,hash);
             } else {
                 //1 DAG AAN DE CALENDAR TOEVOEGEN
                 c1.add(Calendar.DAY_OF_YEAR, 1);
@@ -173,6 +182,7 @@ public class Registrar implements RegistrarInterface {
                 //System.out.println(dueDate);
                 key = generateDailyKey(bussinesNumber, dueDate);
                 hash = createHash(key,bussinesNumber,dueDate);
+                mappingDayNyms.put(dueDate,hash);
             }
             //NIET VERGETEN TOE TE VOEGEN AAN DE ARRAY
             monthlyHash.add(hash);
