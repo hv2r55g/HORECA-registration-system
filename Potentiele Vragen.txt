@@ -15,3 +15,9 @@ Matching:
 
 VOOR DE TOEKOMST
 * Gebruikers under gsm is plat, cafebaas hun capsule afsluiten?
+
+
+______________________________________________________________________________________________________________________
+VRAGEN EN ANTWOORDEN DEMO :
+
+1. Wanneer de user zijn telefoon nr ingeeft, moet de app een bevestigingcode verzenden via sms naar de client als authenticatie.
