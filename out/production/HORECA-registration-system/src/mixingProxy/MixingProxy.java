@@ -146,7 +146,7 @@ public class MixingProxy implements MixingProxyInterface, Remote {
             int aantalCapsulesOorspronkelijk = capsules.size();
             for (int i = aantalCapsulesOorspronkelijk-1; i >= 0; i--) {
                 Capsule currentCapsule = capsules.get(i);
-                if (currentCapsule.getTimestampLeaving()!=0){
+                if (currentCapsule.getTimestampLeaving()>=0){
                     //CAPSULE NAAR MATCHING EN VERWIJDEREN UIT MIXING
                     toMatchingCapsules.add(currentCapsule);
                     capsules.remove(currentCapsule);
@@ -157,7 +157,7 @@ public class MixingProxy implements MixingProxyInterface, Remote {
             int aantalCapsulesOorspronkelijk = capsules.size();
             for (int i = aantalCapsulesOorspronkelijk-1; i>=0; i--) {
                 Capsule currentCapsule = capsules.get(i);
-                if (currentCapsule.getTimestampLeaving()==0){
+                if (currentCapsule.getTimestampLeaving()==-1){
                     currentCapsule.setTimestampLeaving(System.currentTimeMillis()); //Ofwel het sluitingsuur
                 }
                 //OVERIGE CAPSULES NAAR MATCHING EN VERWIJDEREN UIT MIXING

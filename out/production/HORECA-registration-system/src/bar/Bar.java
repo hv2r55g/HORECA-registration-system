@@ -32,7 +32,7 @@ public class Bar extends UnicastRemoteObject implements Remote {
         //Scanner sc = new Scanner(System.in);
         //System.out.println("Geef een bussiness number: ");
         //int bussinesNumberFromScanner = sc.nextInt();
-        int bussinesNumberFromScanner = 1;
+        int bussinesNumberFromScanner = 3;
 
         Bar currentBar = new Bar(bussinesNumberFromScanner);
 

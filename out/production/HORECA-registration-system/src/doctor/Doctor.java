@@ -38,7 +38,6 @@ public class Doctor {
         try {
             Scanner sc = new Scanner(currentFile);
             String firstLine = sc.nextLine();
-            System.out.println(firstLine);
             while (sc.hasNextLine()){
                 String currentBezoekString = sc.nextLine();
                 String[] gegevens = currentBezoekString.split(";");

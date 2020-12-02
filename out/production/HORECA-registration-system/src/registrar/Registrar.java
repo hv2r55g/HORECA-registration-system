@@ -10,12 +10,17 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 
 public class Registrar implements RegistrarInterface {
     private int aantalTokensPerCustomer;
     private String dagVanVandaag;
+    //private Map<String,List> mappingHashBars;   //Key: Datum; Values: List van nyms die gemaakt zijn die dag
+    private ListMultimap<String, String> mappingDayNyms = ArrayListMultimap.create();
     private Map<String,List> mappingTokens;
     private KeyPair keyPairOfTheDay;
     private SecretKey masterKey;
@@ -103,6 +108,7 @@ public class Registrar implements RegistrarInterface {
         byte[] result = mac.doFinal(teHashenInfoInBytes);
         String resultString = new String(result, StandardCharsets.UTF_8);
         //System.out.println("Hoe ziet zo'n hash eruit: " + resultString);
+        //TODO: nog otevoegen aan de mapping
         return resultString;
     }
 
@@ -146,14 +152,47 @@ public class Registrar implements RegistrarInterface {
     }
 
     @Override
+    public ListMultimap<String, String> getMappingDayNyms(int incubatieTijd) throws RemoteException {
+        ListMultimap<String,String> result = ArrayListMultimap.create();
+
+        //ALLE NYMS TERUGGEVEN DIE INCUBATIETIJD TERUG GAAN
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("ddMMMMyyyy");
+
+        //HUIDIGE DAG TOEVOEGEN
+        result.putAll(dagVanVandaag,mappingDayNyms.get(dagVanVandaag));
+
+        for (int i = 0; i < incubatieTijd-1; i++) { //Min 1 omdat de huidige dag hierboven al gedaan wordt
+            //DE EERSTE ZULLEN GISTEREN ZIJN, DAN EERGISTEREN? ENZOVOORT
+            calendar.add(Calendar.DAY_OF_YEAR,-1);
+            String dag = df.format(calendar.getTime());
+            result.putAll(dag,mappingDayNyms.get(dag));
+        }
+
+        //TER CONTROLE KEER ALLE KEYS UITPRINTEN
+        System.out.println("Alle keys van de incubatietijd");
+        for (String s : result.keySet()) {
+            System.out.println("-------------------------------------------------------------------------");
+            System.out.println("Key: " + s);
+            for (String hash: result.get(s)){
+                System.out.println("Value: " + hash);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public List<String> requestMonthlyHash(int bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         System.out.println("Create mothly keys for: " + bussinesNumber);
-        int aantalDagen = 5;
+        int aantalDagen = 10;
         List<String> monthlyHash = new ArrayList<>();
 
         Date date = new Date();
         SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
         Calendar c1 = Calendar.getInstance();
+
+        c1.add(Calendar.DAY_OF_YEAR,-10);   //Efkes terugkeren in de tijd om dingen te testen met incubatietijd
 
         for (int i = 0; i < aantalDagen; i++) {
             SecretKeySpec key;
@@ -163,6 +202,7 @@ public class Registrar implements RegistrarInterface {
                 //System.out.println(currentDate);
                 key = generateDailyKey(bussinesNumber, currentDate);
                 hash = createHash(key,bussinesNumber,currentDate);
+                mappingDayNyms.put(currentDate,hash);
             } else {
                 //1 DAG AAN DE CALENDAR TOEVOEGEN
                 c1.add(Calendar.DAY_OF_YEAR, 1);
@@ -171,6 +211,7 @@ public class Registrar implements RegistrarInterface {
                 //System.out.println(dueDate);
                 key = generateDailyKey(bussinesNumber, dueDate);
                 hash = createHash(key,bussinesNumber,dueDate);
+                mappingDayNyms.put(dueDate,hash);
             }
             //NIET VERGETEN TOE TE VOEGEN AAN DE ARRAY
             monthlyHash.add(hash);

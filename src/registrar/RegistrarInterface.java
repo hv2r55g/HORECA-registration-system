@@ -21,7 +21,7 @@ public interface RegistrarInterface extends Remote {
 
     String getDagVanVandaag() throws RemoteException;
 
-    ListMultimap<String, String> getMappingDayNyms() throws RemoteException;
+    ListMultimap<String, String> getMappingDayNyms(int incubatieTijd) throws RemoteException;
 
 }
 

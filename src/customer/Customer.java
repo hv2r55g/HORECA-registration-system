@@ -18,6 +18,7 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Customer extends UnicastRemoteObject implements CustomerInterface {
     private String phoneNumber;
@@ -70,29 +71,51 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         Capsule currentCapsule = mixingProxyInterface.requestLeaving(currentToken);
         //BEZOEK LOKAAL OPSLAAN
         Bezoek bezoek = new Bezoek(currentCapsule.getTimestampEntered(),currentCapsule.getTimestampLeaving(),QRcodeCurrentBar[0],QRcodeCurrentBar[1],QRcodeCurrentBar[2]);
-        bezoeken.add(bezoek);
+        bezoeken.add(bezoek);   //hoeft niet mer perse
+        sendToLocalDatabase(bezoek);
     }
 
-    private void stuurGegevensNaarDokter() {
-        try{
+    private void sendToLocalDatabase(Bezoek bezoek){
+        try {
+            System.out.println("Voeg bezoek toe aan local database");
             String path = "src/DoktersBestanden/";
             String fileName = phoneNumber + ".csv";
             File file = new File(path+fileName);
-            BufferedWriter bf = new BufferedWriter(new FileWriter(file));
-            bf.append("Timestamp entering;Timestamp leaving;Random number bar;Bussiness number bar;Hash bar");
-            bf.newLine();
-            for (Bezoek b : bezoeken){
-                bf.append(b.getTimestampEntered() + ";" + b.getTimestampLeaving()+ ";" + b.getRandomIntBar()+ ";" + b.getBusinessNumberBar()+ ";" + b.getHashBar());
-                bf.newLine();
-            }
-            bf.close();
 
-        } catch (IOException e) {
+            FileWriter fileWritter = new FileWriter(path+fileName,true);
+            BufferedWriter bw = new BufferedWriter(fileWritter);
+            Scanner sc = new Scanner(file);
+
+            if(!sc.hasNextLine()) {
+                System.out.println("File bestaat nog niet");
+                bw.append("Timestamp entering;Timestamp leaving;Random number bar;Bussiness number bar;Hash bar");
+                bw.newLine();
+                bw.append(bezoek.getTimestampEntered() + ";" + bezoek.getTimestampLeaving()+ ";" + bezoek.getRandomIntBar()+ ";" + bezoek.getBusinessNumberBar()+ ";" + bezoek.getHashBar());
+                bw.newLine();
+            } else {
+                System.out.println("File bestaat wel al");
+                bw.append(bezoek.getTimestampEntered() + ";" + bezoek.getTimestampLeaving()+ ";" + bezoek.getRandomIntBar()+ ";" + bezoek.getBusinessNumberBar()+ ";" + bezoek.getHashBar());
+                bw.newLine();
+            }
+            sc.close();
+            bw.close();
+        } catch(IOException e){
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
+    private void clearLocalDatabase() throws IOException {
+        System.out.println("Clear local database");
+        String path = "src/DoktersBestanden/";
+        String fileName = phoneNumber + ".csv";
+
+        FileWriter fileWritter = new FileWriter(path+fileName);
+        BufferedWriter bw = new BufferedWriter(fileWritter);
+        bw.write("");
+        bw.close();
+    }
+
+    public static void main(String[] args) throws IOException, NotBoundException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
         //Scanner sc = new Scanner(System.in);
         //System.out.println("Geef uw gsm nummer: ");
         //int phoneNumber = sc.nextInt();
@@ -135,9 +158,8 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         currentCustomer.bezoekBar();
         currentCustomer.verlaatBar();
 
-        //DB NAAR DE DOKTER
-        currentCustomer.stuurGegevensNaarDokter();
-
+        //METHODE OM KEER HEEL DIE FILE TE CLEAREN
+        //currentCustomer.clearLocalDatabase();
 
 
     }
