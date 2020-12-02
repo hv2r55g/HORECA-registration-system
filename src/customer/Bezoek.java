@@ -1,8 +1,13 @@
 package customer;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Bezoek {
     private long timestampEntered;
+    private String timestampEnteredString;
     private long timestampLeaving;
+    private String timestampLeavingString;
     private String randomIntBar;
     private String businessNumberBar;
     private String hashBar;
@@ -26,6 +31,16 @@ public class Bezoek {
     public String getHashBar() {
         return hashBar;
     }
+
+    public String getTimestampEnteredString() {
+        return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampEntered));
+    }
+
+
+    public String getTimestampLeavingString() {
+        return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampLeaving));
+    }
+
 
     public Bezoek(){}
 

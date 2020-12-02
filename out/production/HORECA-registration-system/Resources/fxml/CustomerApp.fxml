@@ -1,11 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="customer.CustomerGUIController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="716.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="customer.CustomerGUIController">
    <children>
-      <Button fx:id="button1" layoutX="187.0" layoutY="143.0" mnemonicParsing="false" onAction="#click" text="Button" />
-      <Button fx:id="button2" layoutX="248.0" layoutY="143.0" mnemonicParsing="false" onAction="#click" text="Button" />
+      <BorderPane prefHeight="200.0" prefWidth="200.0">
+         <top>
+            <HBox alignment="CENTER" prefHeight="150.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label prefHeight="17.0" prefWidth="83.0" text="Datastring Bar:">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin></Label>
+                  <TextField fx:id="inputDatastring" onAction="#scanQRCode" prefHeight="25.0" prefWidth="414.0" promptText="Enter the datastring">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin></TextField>
+               </children>
+            </HBox>
+         </top>
+         <left>
+            <GridPane BorderPane.alignment="CENTER">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label text="Business nr:" />
+                  <Label fx:id="labelBusinessNumber" text="Label" GridPane.columnIndex="1" />
+                  <Label text="Random int:" GridPane.rowIndex="1" />
+                  <Label text="Hash bar:" GridPane.rowIndex="2" />
+                  <Label fx:id="labelRandomInt" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Label fx:id="labelHashBar" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+               </children>
+               <BorderPane.margin>
+                  <Insets left="20.0" />
+               </BorderPane.margin>
+            </GridPane>
+         </left>
+         <bottom>
+            <HBox alignment="CENTER" prefHeight="111.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="buttonBezoekBar" mnemonicParsing="false" onAction="#bezoekBar" text="Bezoek bar">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin></Button>
+                  <Button fx:id="buttonVerlaatBar" mnemonicParsing="false" onAction="#verlaatBar" text="Verlaat bar">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin></Button>
+                  <Button fx:id="buttonClearDatabase" mnemonicParsing="false" onAction="#clearLocalDatabase" text="Clear Local Database" />
+               </children>
+            </HBox>
+         </bottom>
+         <center>
+            <ImageView fx:id="imageViewSign" fitHeight="127.0" fitWidth="292.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+               <image>
+                  <Image url="@../Icons/default.jpg" />
+               </image>
+            </ImageView>
+         </center></BorderPane>
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+         <children>
+            <Button fx:id="buttonCOVID" mnemonicParsing="false" prefHeight="85.0" prefWidth="156.0" style="-fx-background-color: crimson; -fx-background-radius: 18 18 18 18" text="COVID?" textFill="WHITE">
+               <font>
+                  <Font size="25.0" />
+               </font></Button>
+         </children>
+      </HBox>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+         <center>
+            <TableView fx:id="tableViewBezoeken" BorderPane.alignment="CENTER" />
+         </center>
+      </BorderPane>
    </children>
-</AnchorPane>
+</VBox>

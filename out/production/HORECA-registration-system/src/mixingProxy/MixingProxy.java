@@ -18,12 +18,20 @@ import java.util.concurrent.TimeUnit;
 public class MixingProxy implements MixingProxyInterface, Remote {
     private List<Capsule> capsules = new ArrayList<>();
     private PublicKey publicKeyToday;
+    private KeyPair keyPairOfTheDay;
     private String dagVanVandaag;
     private RegistrarInterface registrarInterface;
     private MatchingServiceInterface matchingServiceInterface;
 
     public MixingProxy() {
         super();
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+            keyPairOfTheDay = keyPairGenerator.generateKeyPair();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void main(String[] args) throws MalformedURLException, RemoteException, NotBoundException, InterruptedException, ParseException {
@@ -193,11 +201,10 @@ public class MixingProxy implements MixingProxyInterface, Remote {
     @Override
     public byte[] signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException {
         Signature signature = Signature.getInstance("SHA256WithDSA");
-        SecureRandom secureRandom = new SecureRandom();
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-        signature.initSign(keyPair.getPrivate(), secureRandom);
-        signature.update(capsule.getTokenCustomer());
+        //SecureRandom secureRandom = new SecureRandom();
+        //signature.initSign(keyPairOfTheDay.getPrivate(), secureRandom);
+        signature.initSign(keyPairOfTheDay.getPrivate());
+        signature.update(capsule.getHashBar().getBytes());
         byte[] signedToken = signature.sign();
         return signedToken;
     }
