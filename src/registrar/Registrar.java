@@ -108,7 +108,6 @@ public class Registrar implements RegistrarInterface {
         byte[] result = mac.doFinal(teHashenInfoInBytes);
         String resultString = new String(result, StandardCharsets.UTF_8);
         //System.out.println("Hoe ziet zo'n hash eruit: " + resultString);
-        //TODO: nog otevoegen aan de mapping
         return resultString;
     }
 

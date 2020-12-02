@@ -16,9 +16,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Customer extends UnicastRemoteObject implements CustomerInterface {
     private String phoneNumber;
@@ -26,6 +24,7 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
     private byte[] currentToken;
     private List<Bezoek> bezoeken;
     private String[] QRcodeCurrentBar;
+    private Map<String,String> mappingIcons;
     private RegistrarInterface registrarInterface;
     private MixingProxyInterface mixingProxyInterface;
 
@@ -35,7 +34,8 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
     public Customer(String phoneNumber) throws RemoteException {
         this.phoneNumber = phoneNumber;
         this.bezoeken = new ArrayList();
-        QRcodeCurrentBar = new String[3];
+        this.QRcodeCurrentBar = new String[3];
+        this.mappingIcons = new HashMap<>();
     }
 
     private void requestTokens() throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
@@ -55,7 +55,11 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
             if (doSign) {
                 //dan moet men de sign ontvangen
                 byte[] signedCapsule = mixingProxyInterface.signCapsule(capsule);
-                System.out.println("Dit is de bytearray van de sign: " + signedCapsule);
+                System.out.println("Dit is de bytearray van de sign: " + Arrays.toString(signedCapsule));
+
+                //KIJKEN WELK LOGO DIE MOET KRIJGEN
+                //BEETJE INT MIDDEN ANDERS STEEDS ZELFDE GETAL
+                showLogo(signedCapsule[10]);
             } else {
                 System.out.println("bezoek gefailed, waarschijnlijk door een check");
             }
@@ -63,6 +67,22 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
             tokens.remove(0);
         } else {
             System.out.println("U kan deze bar helaas niet meer bezoeken, uw tokens voor vandaag zijn verbruikt");
+        }
+    }
+
+    private void showLogo(int signedCapsule) {
+        int eersteGetal = Math.abs(signedCapsule);
+        for(String currentInterval: mappingIcons.keySet()){
+            String[] interval = currentInterval.split("-");
+            if ((Integer.parseInt(interval[0])<= eersteGetal) && (eersteGetal<= Integer.parseInt(interval[1]))){
+                System.out.println("Het getal bevindt zich in het interval " + currentInterval + " en krijgt de " + mappingIcons.get(currentInterval) + " toegewezen");
+                break;
+            } else if (100 <= eersteGetal){
+                System.out.println("Het getal is groter dan 100, en krijgt de default waarde mee");
+                break;
+            } else if (0 > eersteGetal){
+                System.out.println("Er is iets misgelopen met uw ABS");
+            }
         }
     }
 
@@ -119,8 +139,33 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         //Scanner sc = new Scanner(System.in);
         //System.out.println("Geef uw gsm nummer: ");
         //int phoneNumber = sc.nextInt();
-        String phoneNumber = "123456789";
+        String phoneNumber = "00000003";
         Customer currentCustomer = new Customer(phoneNumber);
+
+        //1 KEER PER DAG BEIDE LIJSTEN SHUFFELEN? KWEET ALLEEN NIET GOED HOE IK HET MOET IMPLEMENTEREN
+        //VOORLOPIG GEWOON GELIJKE INDEXEN GELIJK STELLEN AAN ELKAAR
+        String[] interval = {"0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80-84","85-89","90-94","95-99",};
+        String[] afbeeldingen = {"BlueDot.jpg","BlueSquare.jpg","BlueStar","BlueTriangle.jpg","BlueHeart.jpg",
+                                    "YellowDot.jpg","YellowSquare.jpg","YellowStar","YellowTriangle.jpg", "YellowHeart.jpg",
+                                    "GreenDot.jpg","GreenSquare.jpg","GreenStar","GreenTriangle.jpg","GreenHeart.jpg",
+                                    "RedDot.jpg","RedSquare.jpg","RedStar","RedTriangle.jpg","RedHeart.jpg"};
+        //SHUFFELEN
+        List<String> intervalArray = Arrays.asList(interval);
+        List<String> afbeeldingenArray = Arrays.asList(afbeeldingen);
+        //Collections.shuffle(intervalArray);
+        //Collections.shuffle(afbeeldingenArray);
+
+        boolean evenGroot = interval.length == afbeeldingen.length;
+        System.out.println("Zijn de sizes even groot? " + evenGroot);
+        if (evenGroot){
+            for (int i = 0; i < interval.length; i++) {
+                currentCustomer.mappingIcons.put(intervalArray.get(i),afbeeldingenArray.get(i));
+            }
+        }
+
+
+
+
 
         //CONNECTEN MET REGISTRAR
         String hostname = "localhost";
@@ -144,7 +189,7 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         currentCustomer.requestTokens();
 
         //WE BEZOEKEN EEN BAR, TIJDELIJK PLAKKEN WE HIER ALLE QR CODE INFO
-        String PLAKDESTRINGHIER = "1477;1;��,\u001E�k��Ks���\u001CO�iD�;";
+        String PLAKDESTRINGHIER = "8773;1;uWxv�(7�\u0018���H\u001B{ L�;";
         //KAN MISSCHIEN IN METHODKE VO CLEANER
         String[] temp = PLAKDESTRINGHIER.split(";");
         currentCustomer.QRcodeCurrentBar[0] = temp[0];
@@ -155,8 +200,8 @@ public class Customer extends UnicastRemoteObject implements CustomerInterface {
         //SIMULATIE BEZOEKEN
         currentCustomer.bezoekBar();
         currentCustomer.verlaatBar();
-        currentCustomer.bezoekBar();
-        currentCustomer.verlaatBar();
+        //currentCustomer.bezoekBar();
+        //currentCustomer.verlaatBar();
 
         //METHODE OM KEER HEEL DIE FILE TE CLEAREN
         //currentCustomer.clearLocalDatabase();
