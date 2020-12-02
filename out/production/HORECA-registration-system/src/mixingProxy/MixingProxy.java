@@ -17,14 +17,10 @@ import java.util.concurrent.TimeUnit;
 
 public class MixingProxy implements MixingProxyInterface, Remote {
     private List<Capsule> capsules = new ArrayList<>();
-
-    //Werken met een queue, dan kan je aan de hand van queue.poll het eerste element retrieven EN REMOVEN.
-    //Queue<Capsule> queueCapsules = new LinkedList<Capsule>();
+    private PublicKey publicKeyToday;
+    private String dagVanVandaag;
     private RegistrarInterface registrarInterface;
     private MatchingServiceInterface matchingServiceInterface;
-    private PublicKey publicKeyToday;
-    private PrivateKey privateKeyToday;
-    private String dagVanVandaag;
 
     public MixingProxy() {
         super();
@@ -127,10 +123,6 @@ public class MixingProxy implements MixingProxyInterface, Remote {
         publicKeyToday = registrarInterface.getPublicKeyOfTheDay();
     }
 
-    public void getPrivateKey() throws RemoteException {
-        privateKeyToday = registrarInterface.getPrivatekeyOftheDay();
-    }
-
     public void sendCapsulesToMatchingService() throws RemoteException, ParseException {
         System.out.println("Flushen van de capsules");
         //CAPSULES MOETEN EERST GESHUFFELD WORDEN
@@ -202,10 +194,11 @@ public class MixingProxy implements MixingProxyInterface, Remote {
     public byte[] signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException {
         Signature signature = Signature.getInstance("SHA256WithDSA");
         SecureRandom secureRandom = new SecureRandom();
-        signature.initSign(registrarInterface.getPrivatekeyOftheDay(), secureRandom);   //TODO: dit mag niet volgens mij
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        signature.initSign(keyPair.getPrivate(), secureRandom);
         signature.update(capsule.getTokenCustomer());
         byte[] signedToken = signature.sign();
-
         return signedToken;
     }
 
