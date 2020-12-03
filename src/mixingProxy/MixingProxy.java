@@ -3,6 +3,7 @@ package mixingProxy;
 import matchingService.MatchingServiceInterface;
 import registrar.RegistrarInterface;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
@@ -204,7 +205,13 @@ public class MixingProxy implements MixingProxyInterface, Remote {
         //SecureRandom secureRandom = new SecureRandom();
         //signature.initSign(keyPairOfTheDay.getPrivate(), secureRandom);
         signature.initSign(keyPairOfTheDay.getPrivate());
-        signature.update(capsule.getHashBar().getBytes());
+        try {
+            System.out.println("Voor: "+capsule.getHashBar());
+            signature.update(capsule.getHashBar().getBytes("UTF-8"));
+            System.out.println("Na: "+capsule.getHashBar());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         byte[] signedToken = signature.sign();
         return signedToken;
     }
