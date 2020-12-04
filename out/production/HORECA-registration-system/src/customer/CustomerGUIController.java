@@ -1,6 +1,8 @@
 package customer;
 
 import bar.QRCode;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,11 +10,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 import mixingProxy.Capsule;
 import mixingProxy.MixingProxyInterface;
 import registrar.RegistrarInterface;
 import registrar.Token;
 
+import javax.swing.*;
 import java.io.*;
 import java.rmi.Naming;
 import java.rmi.Remote;
@@ -23,6 +27,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
+import java.util.Timer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class CustomerGUIController extends UnicastRemoteObject implements Remote {
@@ -49,6 +55,9 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     Button buttonClearDatabase;
 
     @FXML
+    Label labelTijd;
+
+    @FXML
     ImageView imageViewSign;
 
     @FXML
@@ -67,6 +76,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private List<Token> tokens;
     private Token currentToken;
     private ObservableList<Bezoek> bezoeken;
+    private List<Bezoek> bezoekenLaatsteZevenDagen;
     private QRCode QRcodeCurrentBar;
     private Map<Character,String> mappingIcons;
     private RegistrarInterface registrarInterface;
@@ -80,6 +90,20 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private void initAttributen(){
         this.bezoeken = leesLocalDatabase();
         this.mappingIcons = new HashMap<>();
+    }
+
+    private List<Bezoek> getBezoekenLaatsteZevenDagen(){
+        List<Bezoek> bezoekenAfgelopenWeek = new ArrayList<>();
+        long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        long currentTime = System.currentTimeMillis();
+        long timeSevenDaysAgo = currentTime - (7 * DAY_IN_MS);
+
+        for (Bezoek bezoek : bezoeken){
+            if (timeSevenDaysAgo <= bezoek.getTimestampEntered()){
+                bezoekenAfgelopenWeek.add(bezoek);
+            }
+        }
+        return bezoekenAfgelopenWeek;
     }
 
     private ObservableList<Bezoek> leesLocalDatabase(){
@@ -194,13 +218,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     }
 
     @FXML
-    private void requestQRCode() throws RemoteException {
-        labelRandomInt.setText(QRcodeCurrentBar.getRandomGetal());
-        labelBusinessNumber.setText(QRcodeCurrentBar.getBusinessNumber());
-        labelHashBar.setText(String.valueOf(QRcodeCurrentBar.getHashBar()));
-    }
-
-    @FXML
     private void scanQRCode(){
         String dataString = inputDatastring.getText();
         String[] temp = dataString.split(";");
@@ -243,6 +260,23 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
                 //KIJKEN WELK LOGO DIE MOET KRIJGEN
                 //BEETJE INT MIDDEN ANDERS STEEDS ZELFDE GETAL
                 showLogo(signedCapsule.charAt(10));
+
+                final int[] teller = {0};
+                Timer timer = new Timer();
+                TimerTask task = new TimerTask() {
+                    @Override
+                    public void run() {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                System.out.println("print iedere seconde");
+                                labelTijd.setText(Integer.toString(teller[0]++));
+                            }
+                        });
+                    }
+                };
+                timer.scheduleAtFixedRate(task, 0, 2000);
+
             } else {
                 System.out.println("bezoek gefailed, waarschijnlijk door een check");
             }
@@ -260,6 +294,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         //BEZOEK LOKAAL OPSLAAN
         Bezoek bezoek = new Bezoek(currentCapsule.getTimestampEntered(),currentCapsule.getTimestampLeaving(),QRcodeCurrentBar.getRandomGetal(),QRcodeCurrentBar.getBusinessNumber(),QRcodeCurrentBar.getHashBar());
         bezoeken.add(bezoek);   //hoeft niet mer perse
+        labelTijd.setText("00:00:00");
         sendToLocalDatabase(bezoek);
     }
 

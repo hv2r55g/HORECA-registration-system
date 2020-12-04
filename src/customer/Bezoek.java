@@ -43,6 +43,13 @@ public class Bezoek {
         return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampLeaving));
     }
 
+    public boolean isInfected() {
+        return infected;
+    }
+
+    public void setInfected(boolean infected) {
+        this.infected = infected;
+    }
 
     public Bezoek(){}
     

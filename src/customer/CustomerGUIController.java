@@ -1,6 +1,8 @@
 package customer;
 
 import bar.QRCode;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,11 +10,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 import mixingProxy.Capsule;
 import mixingProxy.MixingProxyInterface;
 import registrar.RegistrarInterface;
 import registrar.Token;
 
+import javax.swing.*;
 import java.io.*;
 import java.rmi.Naming;
 import java.rmi.Remote;
@@ -23,6 +27,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
+import java.util.Timer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class CustomerGUIController extends UnicastRemoteObject implements Remote {
@@ -53,9 +59,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
 
     @FXML
     Button buttonCOVID;
-
-    @FXML
-    Button buttonTest;
 
     @FXML
     TableView tableViewBezoeken;

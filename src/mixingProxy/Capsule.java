@@ -18,12 +18,44 @@ public class Capsule implements Serializable{
     private String dagBezoek;
     private boolean infected;
 
-    public void setTokenCustomer(byte[] tokenCustomer) {
+    public long getTimestampEntered() {
+        return timestampEntered;
+    }
+
+    public void setTimestampEntered(long timestampEntered) {
+        this.timestampEntered = timestampEntered;
+    }
+
+    public long getTimestampLeaving() {
+        return timestampLeaving;
+    }
+
+    public void setTimestampLeaving(long timestampLeaving) {
+        this.timestampLeaving = timestampLeaving;
+    }
+
+    public Token getTokenCustomer() {
+        return tokenCustomer;
+    }
+
+    public void setTokenCustomer(Token tokenCustomer) {
         this.tokenCustomer = tokenCustomer;
     }
 
-    public void setHashBar(byte[] hashBar) {
+    public String getHashBar() {
+        return hashBar;
+    }
+
+    public void setHashBar(String hashBar) {
         this.hashBar = hashBar;
+    }
+
+    public String getDagBezoek() {
+        return dagBezoek;
+    }
+
+    public void setDagBezoek(String dagBezoek) {
+        this.dagBezoek = dagBezoek;
     }
 
     public boolean isInfected() {
@@ -32,34 +64,6 @@ public class Capsule implements Serializable{
 
     public void setInfected(boolean infected) {
         this.infected = infected;
-    }
-
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
-
-    public Token getTokenCustomer() {
-        return tokenCustomer;
-    }
-
-    public String getHashBar() {
-        return hashBar;
-    }
-
-    public String getDagBezoek() {
-        return dagBezoek;
-    }
-
-    public long getTimestampEntered() { return timestampEntered; }
-
-    public long getTimestampLeaving() { return timestampLeaving; }
-
-    public void setDagBezoek(String dagBezoek) { this.dagBezoek = dagBezoek; }
-
-    public void setTimestampEntered(long timestampEntered) { this.timestampEntered = timestampEntered; }
-
-    public void setTimestampLeaving(long timestampLeaving) {
-        this.timestampLeaving = timestampLeaving;
     }
 
     public Capsule(){}
