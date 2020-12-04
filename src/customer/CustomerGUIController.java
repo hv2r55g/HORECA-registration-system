@@ -66,6 +66,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private List<byte[]> tokens;
     private byte[] currentToken;
     private ObservableList<Bezoek> bezoeken;
+    private List<Bezoek> bezoekenLaatsteZevenDagen;
     private QRCode QRcodeCurrentBar;
     private Map<String,String> mappingIcons;
     private RegistrarInterface registrarInterface;
@@ -79,6 +80,20 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private void initAttributen(){
         this.bezoeken = leesLocalDatabase();
         this.mappingIcons = new HashMap<>();
+    }
+
+    private List<Bezoek> getBezoekenLaatsteZevenDagen(){
+        List<Bezoek> bezoekenAfgelopenWeek = new ArrayList<>();
+        long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        long currentTime = System.currentTimeMillis();
+        long timeSevenDaysAgo = currentTime - (7 * DAY_IN_MS);
+
+        for (Bezoek bezoek : bezoeken){
+            if (timeSevenDaysAgo <= bezoek.getTimestampEntered()){
+                bezoekenAfgelopenWeek.add(bezoek);
+            }
+        }
+        return bezoekenAfgelopenWeek;
     }
 
     private ObservableList<Bezoek> leesLocalDatabase(){

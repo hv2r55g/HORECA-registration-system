@@ -110,6 +110,14 @@ public class MatchingService implements MatchingServiceInterface, Remote{
     @Override
     public void setInfectedCapsules(List<Bezoek> bezoekenPatient) throws RemoteException {
 
+        for (Bezoek bezoek : bezoekenPatient){
+            for (Capsule capsule : capsulesDB){
+                if (capsule.getHashBar() == bezoek.getHashBar()){
+                    capsule.setInfected(true);
+                    infectedCapsules.add(capsule);
+                }
+            }
+        }
 
     }
     //------------------------------------------------------------------------------------------------------------------------------------------//
