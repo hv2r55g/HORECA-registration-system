@@ -4,7 +4,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import customer.Bezoek;
 import mixingProxy.Capsule;
-import mixingProxy.MixingProxy;
 import mixingProxy.MixingProxyInterface;
 import registrar.Registrar;
 import registrar.RegistrarInterface;

@@ -172,7 +172,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
 
     private void initTable() {
         TableColumn columnTimeEntered = new TableColumn("Time entered");
-        columnTimeEntered.setMinWidth(000);
+        columnTimeEntered.setMinWidth(200);
         columnTimeEntered.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("timestampEnteredString"));
         columnTimeEntered.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.2));
 
@@ -279,10 +279,10 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     }
 
     private void showLogo(char signedCapsule) {
-        System.out.println("Dit is het karakter: " + signedCapsule);
-        if (mappingIcons.containsKey(signedCapsule)) {
+        System.out.println("Dit is het karakter: " + Character.toLowerCase(signedCapsule));
+        if (mappingIcons.containsKey(Character.toLowerCase(signedCapsule))) {
             //CHAR BEVINDT ZICH IN DE STRING
-            String path = "src/Resources/Icons/" + mappingIcons.get(signedCapsule);
+            String path = "src/Resources/Icons/" + mappingIcons.get(Character.toLowerCase(signedCapsule));
             File file = new File(path);
             try {
                 Image image = new Image(new FileInputStream(file));

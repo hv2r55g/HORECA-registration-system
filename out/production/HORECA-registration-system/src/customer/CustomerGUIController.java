@@ -55,16 +55,10 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     Button buttonClearDatabase;
 
     @FXML
-    Label labelTijd;
-
-    @FXML
     ImageView imageViewSign;
 
     @FXML
     Button buttonCOVID;
-
-    @FXML
-    Button buttonTest;
 
     @FXML
     TableView tableViewBezoeken;
@@ -178,7 +172,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
 
     private void initTable() {
         TableColumn columnTimeEntered = new TableColumn("Time entered");
-        columnTimeEntered.setMinWidth(000);
+        columnTimeEntered.setMinWidth(200);
         columnTimeEntered.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("timestampEnteredString"));
         columnTimeEntered.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.2));
 
@@ -260,23 +254,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
                 //KIJKEN WELK LOGO DIE MOET KRIJGEN
                 //BEETJE INT MIDDEN ANDERS STEEDS ZELFDE GETAL
                 showLogo(signedCapsule.charAt(10));
-
-                final int[] teller = {0};
-                Timer timer = new Timer();
-                TimerTask task = new TimerTask() {
-                    @Override
-                    public void run() {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                System.out.println("print iedere seconde");
-                                labelTijd.setText(Integer.toString(teller[0]++));
-                            }
-                        });
-                    }
-                };
-                timer.scheduleAtFixedRate(task, 0, 2000);
-
             } else {
                 System.out.println("bezoek gefailed, waarschijnlijk door een check");
             }
@@ -294,7 +271,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         //BEZOEK LOKAAL OPSLAAN
         Bezoek bezoek = new Bezoek(currentCapsule.getTimestampEntered(),currentCapsule.getTimestampLeaving(),QRcodeCurrentBar.getRandomGetal(),QRcodeCurrentBar.getBusinessNumber(),QRcodeCurrentBar.getHashBar());
         bezoeken.add(bezoek);   //hoeft niet mer perse
-        labelTijd.setText("00:00:00");
         sendToLocalDatabase(bezoek);
     }
 
@@ -303,10 +279,10 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     }
 
     private void showLogo(char signedCapsule) {
-        System.out.println("Dit is het karakter: " + signedCapsule);
-        if (mappingIcons.containsKey(signedCapsule)) {
+        System.out.println("Dit is het karakter: " + Character.toLowerCase(signedCapsule));
+        if (mappingIcons.containsKey(Character.toLowerCase(signedCapsule))) {
             //CHAR BEVINDT ZICH IN DE STRING
-            String path = "src/Resources/Icons/" + mappingIcons.get(signedCapsule);
+            String path = "src/Resources/Icons/" + mappingIcons.get(Character.toLowerCase(signedCapsule));
             File file = new File(path);
             try {
                 Image image = new Image(new FileInputStream(file));

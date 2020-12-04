@@ -59,7 +59,6 @@
                         <Insets right="20.0" />
                      </HBox.margin></Button>
                   <Button fx:id="buttonClearDatabase" mnemonicParsing="false" onAction="#clearLocalDatabase" text="Clear Local Database" />
-                  <Label fx:id="labelTijd" text="0" />
                </children>
             </HBox>
          </bottom>

@@ -3,7 +3,6 @@ package doctor;
 import bar.Bar;
 import customer.Bezoek;
 import matchingService.MatchingServiceInterface;
-import mixingProxy.MixingProxy;
 import mixingProxy.MixingProxyInterface;
 import registrar.RegistrarInterface;
 

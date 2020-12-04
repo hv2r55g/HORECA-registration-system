@@ -1,10 +1,18 @@
 package mixingProxy;
 
+import customer.Bezoek;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import matchingService.MatchingServiceInterface;
 import registrar.RegistrarInterface;
 import registrar.Token;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
@@ -14,19 +22,35 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.rmi.RemoteException;
-import java.util.concurrent.TimeUnit;
 
 
-public class MixingProxy implements MixingProxyInterface, Remote {
-    private List<Capsule> capsules = new ArrayList<>();
+public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
+    @FXML
+    TableView tableViewCapsules;
+
+    @FXML
+    Button buttonFlush;
+
+
+
+    private ObservableList<Capsule> capsules;
     private PublicKey publicKeyToday;
     private KeyPair keyPairOfTheDay;
     private String dagVanVandaag;
     private RegistrarInterface registrarInterface;
     private MatchingServiceInterface matchingServiceInterface;
 
-    public MixingProxy() {
-        super();
+    public MixingProxyGUIController() { super(); }
+
+    public void initController() throws RemoteException {
+        initConnecties();
+        initAttributen();
+        initTable();
+        getPublicKey();
+    }
+
+    private void initAttributen() {
+        capsules = FXCollections.observableArrayList();
         try {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairOfTheDay = keyPairGenerator.generateKeyPair();
@@ -34,9 +58,43 @@ public class MixingProxy implements MixingProxyInterface, Remote {
             e.printStackTrace();
         }
 
+        //DAG VAN VANDAAG INSTELLEN
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("ddMMMMyyyy");
+        dagVanVandaag = sdf.format(date);
     }
 
-    public static void main(String[] args) throws MalformedURLException, RemoteException, NotBoundException, InterruptedException, ParseException {
+    private void initTable() {
+        TableColumn columnTimeEntered = new TableColumn("Time entered");
+        columnTimeEntered.setMinWidth(100);
+        columnTimeEntered.setCellValueFactory(new PropertyValueFactory<Capsule,String>("timestampEnteredString"));
+        columnTimeEntered.prefWidthProperty().bind(tableViewCapsules.widthProperty().multiply(0.2));
+
+        TableColumn columnTimeLeaving = new TableColumn("Time left");
+        columnTimeLeaving.setMinWidth(100);
+        columnTimeLeaving.setCellValueFactory(new PropertyValueFactory<Capsule,String>("timestampLeavingString"));
+        columnTimeLeaving.prefWidthProperty().bind(tableViewCapsules.widthProperty().multiply(0.2));
+
+        TableColumn columnTokenSign = new TableColumn("Token sign");
+        columnTokenSign.setMinWidth(100);
+        columnTokenSign.setCellValueFactory(new PropertyValueFactory<Capsule,String>("tokenSign"));
+        columnTokenSign.prefWidthProperty().bind(tableViewCapsules.widthProperty().multiply(0.2));
+
+        TableColumn columnTokenData = new TableColumn("Token data");
+        columnTokenData.setMinWidth(100);
+        columnTokenData.setCellValueFactory(new PropertyValueFactory<Capsule,String>("tokenData"));
+        columnTokenData.prefWidthProperty().bind(tableViewCapsules.widthProperty().multiply(0.2));
+
+        TableColumn columnHashBar = new TableColumn("Hash bar");
+        columnHashBar.setMinWidth(200);
+        columnHashBar.setCellValueFactory(new PropertyValueFactory<Capsule,String>("hashBar"));
+        columnHashBar.prefWidthProperty().bind(tableViewCapsules.widthProperty().multiply(0.2));
+
+        tableViewCapsules.setItems(capsules);
+        tableViewCapsules.getColumns().addAll(columnTimeEntered,columnTimeLeaving,columnTokenSign,columnTokenData,columnHashBar);
+    }
+
+    private void initConnecties() {
         startRMIRegistry();
         String hostname = "localhost";
         String servicename = "MixingProxyService";
@@ -45,38 +103,29 @@ public class MixingProxy implements MixingProxyInterface, Remote {
         String servicenameMatchingServer = "MatchingServiceService";
 
         try {
-            MixingProxy mixingProxy = new MixingProxy();
-            MixingProxyInterface stub = (MixingProxyInterface) UnicastRemoteObject.exportObject(mixingProxy, 0);
+            MixingProxyInterface stub = (MixingProxyInterface) UnicastRemoteObject.exportObject(this, 0);
             Naming.rebind("rmi://" + hostname + "/" + servicename, stub);
             System.out.println("RMI Server Mixing Proxy successful started");
 
             //CONNECTEN MET REGISTRAR
-            Naming.rebind("rmi://" + hostname + "/" + clientService, mixingProxy);
-            RegistrarInterface registrarInterface = (RegistrarInterface) Naming.lookup("rmi://" + hostname + "/" + servicenameReg);
-            mixingProxy.registrarInterface = registrarInterface;
+            Naming.rebind("rmi://" + hostname + "/" + clientService, this);
+            registrarInterface = (RegistrarInterface) Naming.lookup("rmi://" + hostname + "/" + servicenameReg);
+
 
             //CONNECTEN MET MATICHING SERVICE
             clientService = "MatchingServiceListening";
-            Naming.rebind("rmi://" + hostname + "/" + clientService, mixingProxy);
-            MatchingServiceInterface matchingServiceInterface = (MatchingServiceInterface) Naming.lookup("rmi://" + hostname + "/" + servicenameMatchingServer);
-            mixingProxy.matchingServiceInterface = matchingServiceInterface;
+            Naming.rebind("rmi://" + hostname + "/" + clientService, this);
+            matchingServiceInterface = (MatchingServiceInterface) Naming.lookup("rmi://" + hostname + "/" + servicenameMatchingServer);
 
-            //DAG VAN VANDAAG INSTELLEN
-            Date date = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("ddMMMMyyyy");
-            mixingProxy.dagVanVandaag = sdf.format(date);
-
-            mixingProxy.getPublicKey();
-
-            //Na 2 minuten keer flushen
-            TimeUnit.MINUTES.sleep(2);
-            mixingProxy.sendCapsulesToMatchingService();
-
-        } catch (Exception e) {
-            System.out.println(e);
-            System.out.println("Server failed starting ...");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
     }
+
 
     public static void startRMIRegistry() {
         try {
@@ -138,53 +187,6 @@ public class MixingProxy implements MixingProxyInterface, Remote {
         publicKeyToday = registrarInterface.getPublicKeyOfTheDay();
     }
 
-    public void sendCapsulesToMatchingService() throws RemoteException, ParseException {
-        System.out.println("Flushen van de capsules");
-        //CAPSULES MOETEN EERST GESHUFFELD WORDEN
-        List<Capsule> toMatchingCapsules = new ArrayList<>();
-
-        //NA 23U55 AANGEPASTE REGELING
-        Date date = new Date() ;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm") ;
-        dateFormat.format(date);
-        String sluitingsuur = "23:55";
-
-        if (dateFormat.parse(dateFormat.format(date)).before(dateFormat.parse(sluitingsuur))){
-            int aantalCapsulesOorspronkelijk = capsules.size();
-            for (int i = aantalCapsulesOorspronkelijk-1; i >= 0; i--) {
-                Capsule currentCapsule = capsules.get(i);
-                if (currentCapsule.getTimestampLeaving()>=0){
-                    //CAPSULE NAAR MATCHING EN VERWIJDEREN UIT MIXING
-                    toMatchingCapsules.add(currentCapsule);
-                    capsules.remove(currentCapsule);
-                }
-            }
-        } else {
-            //NA 23U55
-            int aantalCapsulesOorspronkelijk = capsules.size();
-            for (int i = aantalCapsulesOorspronkelijk-1; i>=0; i--) {
-                Capsule currentCapsule = capsules.get(i);
-                if (currentCapsule.getTimestampLeaving()==-1){
-                    currentCapsule.setTimestampLeaving(System.currentTimeMillis()); //Ofwel het sluitingsuur
-                }
-                //OVERIGE CAPSULES NAAR MATCHING EN VERWIJDEREN UIT MIXING
-                toMatchingCapsules.add(currentCapsule);
-                capsules.remove(currentCapsule);
-            }
-            //TO BE SURE
-            System.out.println("Zijn er nog capsules aanwezig na 23u55?" + capsules.size());
-            capsules = new ArrayList<>();
-        }
-
-        System.out.println("Nog zoveel capsules aanwezig: " + capsules.size());
-        System.out.println("Zoveel capsules naar matiching: " + toMatchingCapsules.size());
-        Collections.shuffle(toMatchingCapsules);
-        matchingServiceInterface.addCapsules(toMatchingCapsules);
-
-    }
-
-
-
     //------------------------------------------------------------------------------------------------------------------------------------------//
 
 
@@ -226,6 +228,7 @@ public class MixingProxy implements MixingProxyInterface, Remote {
             if (currentToken.getSignature().equals(c.getTokenCustomer().getSignature())){
                 //System.out.println("Capsule voor: " + c.toString());
                 c.setTimestampLeaving(System.currentTimeMillis());
+                tableViewCapsules.refresh();
                 //System.out.println("Capsule na: " + c.toString());
                 //NORMAAL ZAL TOKEN UNIEK ZIJN EN MAG DE FORLOOP STOPPEN
                 return c;
@@ -234,6 +237,55 @@ public class MixingProxy implements MixingProxyInterface, Remote {
 
         //NORMAAL ZAL HIJ ALTIJD CAPSULE VINDEN
         return null;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------//
+
+    //-----------------------------------------------FXMl---------------------------------------------------------------------------------------//
+    @FXML
+    public void sendCapsulesToMatchingService() throws RemoteException, ParseException {
+        System.out.println("Flushen van de capsules");
+        //CAPSULES MOETEN EERST GESHUFFELD WORDEN
+        List<Capsule> toMatchingCapsules = new ArrayList<>();
+
+        //NA 23U55 AANGEPASTE REGELING
+        Date date = new Date() ;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm") ;
+        dateFormat.format(date);
+        String sluitingsuur = "23:55";
+
+        if (dateFormat.parse(dateFormat.format(date)).before(dateFormat.parse(sluitingsuur))){
+            int aantalCapsulesOorspronkelijk = capsules.size();
+            for (int i = aantalCapsulesOorspronkelijk-1; i >= 0; i--) {
+                Capsule currentCapsule = capsules.get(i);
+                if (currentCapsule.getTimestampLeaving()>=0){
+                    //CAPSULE NAAR MATCHING EN VERWIJDEREN UIT MIXING
+                    toMatchingCapsules.add(currentCapsule);
+                    capsules.remove(currentCapsule);
+                }
+            }
+        } else {
+            //NA 23U55
+            int aantalCapsulesOorspronkelijk = capsules.size();
+            for (int i = aantalCapsulesOorspronkelijk-1; i>=0; i--) {
+                Capsule currentCapsule = capsules.get(i);
+                if (currentCapsule.getTimestampLeaving()==-1){
+                    currentCapsule.setTimestampLeaving(System.currentTimeMillis()); //Ofwel het sluitingsuur
+                }
+                //OVERIGE CAPSULES NAAR MATCHING EN VERWIJDEREN UIT MIXING
+                toMatchingCapsules.add(currentCapsule);
+                capsules.remove(currentCapsule);
+            }
+            //TO BE SURE
+            System.out.println("Zijn er nog capsules aanwezig na 23u55?" + capsules.size());
+            capsules.clear();
+        }
+
+        System.out.println("Nog zoveel capsules aanwezig: " + capsules.size());
+        System.out.println("Zoveel capsules naar matiching: " + toMatchingCapsules.size());
+        Collections.shuffle(toMatchingCapsules);
+        matchingServiceInterface.addCapsules(toMatchingCapsules);
+
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------//
