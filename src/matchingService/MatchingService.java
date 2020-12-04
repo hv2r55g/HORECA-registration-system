@@ -2,6 +2,7 @@ package matchingService;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import customer.Bezoek;
 import mixingProxy.Capsule;
 import mixingProxy.MixingProxy;
 import mixingProxy.MixingProxyInterface;
@@ -25,6 +26,7 @@ public class MatchingService implements MatchingServiceInterface, Remote{
 
     private RegistrarInterface registrarInterface;
     private List<Capsule> capsulesDB = new ArrayList<>();
+    private List<Capsule> infectedCapsules = new ArrayList<>();
     private ListMultimap<String, String> mappingDayNyms = ArrayListMultimap.create();
     public MatchingService(){super(); }
 
@@ -96,6 +98,27 @@ public class MatchingService implements MatchingServiceInterface, Remote{
     @Override
     public void addCapsules(List<Capsule> nieuweCapsules) throws RemoteException {
         capsulesDB.addAll(nieuweCapsules);
+    }
+
+
+    //deze methode is er om vanuit de customer te checken of je in contact bent gekomen met een besmet persoon
+    @Override
+    public boolean requestInfectedOrNot(List<Capsule> capsules) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setInfectedCapsules(List<Bezoek> bezoekenPatient) throws RemoteException {
+
+        for (Bezoek bezoek : bezoekenPatient){
+            for (Capsule capsule : capsulesDB){
+                if (capsule.getHashBar() == bezoek.getHashBar()){
+                    capsule.setInfected(true);
+                    infectedCapsules.add(capsule);
+                }
+            }
+        }
+
     }
     //------------------------------------------------------------------------------------------------------------------------------------------//
 

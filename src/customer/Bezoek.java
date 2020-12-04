@@ -12,6 +12,7 @@ public class Bezoek {
     private String randomIntBar;
     private String businessNumberBar;
     private String hashBar;
+    private boolean infected;
 
     public long getTimestampEntered() {
         return timestampEntered;
@@ -44,13 +45,14 @@ public class Bezoek {
 
 
     public Bezoek(){}
-
+    
     public Bezoek(long timestampEntered,long timestampLeaving,String randomIntBar, String businessNumberBar, String hashBar) {
         this.timestampEntered = timestampEntered;
         this.timestampLeaving = timestampLeaving;
         this.randomIntBar = randomIntBar;
         this.businessNumberBar = businessNumberBar;
         this.hashBar = hashBar;
+        this.infected = false;
     }
 
     @Override
