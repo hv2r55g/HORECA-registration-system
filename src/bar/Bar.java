@@ -16,14 +16,14 @@ import java.util.Random;
 
 public class Bar extends UnicastRemoteObject implements Remote {
 
-    private int bussinesNumber;
+    private String bussinesNumber;
     private List mothlyHash;
-    private String[] QRcode;
+    private QRCode qrCode;
     private RegistrarInterface registrarInterface;
 
     public Bar() throws RemoteException {}
 
-    public Bar(int bussinesNumber) throws RemoteException {
+    public Bar(String bussinesNumber) throws RemoteException {
         this.bussinesNumber = bussinesNumber;
     }
 
@@ -32,7 +32,7 @@ public class Bar extends UnicastRemoteObject implements Remote {
         //Scanner sc = new Scanner(System.in);
         //System.out.println("Geef een bussiness number: ");
         //int bussinesNumberFromScanner = sc.nextInt();
-        int bussinesNumberFromScanner = 1;
+        String bussinesNumberFromScanner = Integer.toString(1);
 
         Bar currentBar = new Bar(bussinesNumberFromScanner);
 
@@ -85,18 +85,16 @@ public class Bar extends UnicastRemoteObject implements Remote {
         String teHashenInfo = randomGetal + mothlyHash.get(0);
         byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
         byte[] result = mac.doFinal(teHashenInfoInBytes);
-        String resultString = new String(result, StandardCharsets.UTF_8);
+        //String resultString = new String(result, StandardCharsets.UTF_8);
         //System.out.println("Hoe ziet zo'n hash voor de QR code eruit: " + resultString);
 
         //NOG DE 3 PARAMETERS OPSLAAN OM IN DE TOEKOMST EEN QR CODE TE MAKEN
-        QRcode = new String[3];
-        QRcode[0] = randomGetal;
-        QRcode[1] = Integer.toString(bussinesNumber);
-        QRcode[2] = resultString;
+        qrCode = new QRCode(randomGetal,bussinesNumber,result);
+
     }
 
     public void printQR(){
-        System.out.println(QRcode[0]+";"+QRcode[1]+";"+QRcode[2]+";");
+        System.out.println(qrCode.getRandomGetal()+";"+qrCode.getBusinessNumber()+";"+qrCode.getHashBar()+";");
     }
     //------------------------------------------------------------------------------------------------------------------------------------------//
 

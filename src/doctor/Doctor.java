@@ -4,6 +4,7 @@ import customer.Bezoek;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -41,12 +42,12 @@ public class Doctor {
             while (sc.hasNextLine()){
                 String currentBezoekString = sc.nextLine();
                 String[] gegevens = currentBezoekString.split(";");
-                Bezoek currentBezoek = new Bezoek(Long.parseLong(gegevens[0]),Long.parseLong(gegevens[1]),gegevens[2],gegevens[3],gegevens[4]);
+                Bezoek currentBezoek = new Bezoek(Long.parseLong(gegevens[0]),Long.parseLong(gegevens[1]),gegevens[2],gegevens[3],gegevens[4].getBytes("UTF-8"));
                 bezoekenPatient.add(currentBezoek);
             }
             System.out.println("Patient: " + currentPatient + " heeft de afgelopen tijd " + bezoekenPatient.size() + " keer een bezoek gebracht aan een bar of restaurant.");
 
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
             System.out.println("De patient heeft nog geen dokterbestand aangemaakt");
         }
     }

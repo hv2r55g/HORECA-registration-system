@@ -205,14 +205,11 @@ public class MixingProxy implements MixingProxyInterface, Remote {
         //SecureRandom secureRandom = new SecureRandom();
         //signature.initSign(keyPairOfTheDay.getPrivate(), secureRandom);
         signature.initSign(keyPairOfTheDay.getPrivate());
-        try {
-            System.out.println("Voor: "+capsule.getHashBar());
-            signature.update(capsule.getHashBar().getBytes("UTF-8"));
-            System.out.println("Na: "+capsule.getHashBar());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Voor: "+capsule.getHashBar());
+        signature.update(capsule.getHashBar());
+        System.out.println("Na: "+capsule.getHashBar());
         byte[] signedToken = signature.sign();
+        System.out.println("De signed hash ziet er zo uit: "+signedToken);
         return signedToken;
     }
 

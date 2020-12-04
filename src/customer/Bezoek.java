@@ -1,6 +1,7 @@
 package customer;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 public class Bezoek {
@@ -10,7 +11,7 @@ public class Bezoek {
     private String timestampLeavingString;
     private String randomIntBar;
     private String businessNumberBar;
-    private String hashBar;
+    private byte[] hashBar;
 
     public long getTimestampEntered() {
         return timestampEntered;
@@ -28,7 +29,7 @@ public class Bezoek {
         return businessNumberBar;
     }
 
-    public String getHashBar() {
+    public byte[] getHashBar() {
         return hashBar;
     }
 
@@ -44,7 +45,7 @@ public class Bezoek {
 
     public Bezoek(){}
 
-    public Bezoek(long timestampEntered,long timestampLeaving,String randomIntBar, String businessNumberBar, String hashBar) {
+    public Bezoek(long timestampEntered,long timestampLeaving,String randomIntBar, String businessNumberBar, byte[] hashBar) {
         this.timestampEntered = timestampEntered;
         this.timestampLeaving = timestampLeaving;
         this.randomIntBar = randomIntBar;
@@ -55,10 +56,13 @@ public class Bezoek {
     @Override
     public String toString() {
         return "Bezoek{" +
-                "timestamp='" + timestampEntered + '\'' +
+                "timestampEntered=" + timestampEntered +
+                ", timestampEnteredString='" + timestampEnteredString + '\'' +
+                ", timestampLeaving=" + timestampLeaving +
+                ", timestampLeavingString='" + timestampLeavingString + '\'' +
                 ", randomIntBar='" + randomIntBar + '\'' +
                 ", businessNumberBar='" + businessNumberBar + '\'' +
-                ", hashBar='" + hashBar + '\'' +
+                ", hashBar=" + Arrays.toString(hashBar) +
                 '}';
     }
 }

@@ -1,5 +1,6 @@
 package customer;
 
+import bar.QRCode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -65,7 +66,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private List<byte[]> tokens;
     private byte[] currentToken;
     private ObservableList<Bezoek> bezoeken;
-    private String[] QRcodeCurrentBar;
+    private QRCode QRcodeCurrentBar;
     private Map<String,String> mappingIcons;
     private RegistrarInterface registrarInterface;
     private MixingProxyInterface mixingProxyInterface;
@@ -77,7 +78,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
 
     private void initAttributen(){
         this.bezoeken = leesLocalDatabase();
-        this.QRcodeCurrentBar = new String[3];
         this.mappingIcons = new HashMap<>();
     }
 
@@ -92,7 +92,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
                 String firstLine = sc.nextLine();
                 while (sc.hasNextLine()){
                     String[] bezoek = sc.nextLine().split(";");
-                    result.add(new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4]));
+                    result.add(new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4].getBytes()));
                 }
             } else {
                 System.out.println("DB is gecleared geweest");
@@ -191,13 +191,10 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private void scanQRCode(){
         String dataString = inputDatastring.getText();
         String[] temp = dataString.split(";");
-        QRcodeCurrentBar[0] = temp[0];
-        QRcodeCurrentBar[1] = temp[1];
-        QRcodeCurrentBar[2] = temp[2];
-
-        labelRandomInt.setText(QRcodeCurrentBar[0]);
-        labelBusinessNumber.setText(QRcodeCurrentBar[1]);
-        labelHashBar.setText(QRcodeCurrentBar[2]);
+        QRcodeCurrentBar = new QRCode(temp[0],temp[1],temp[2].getBytes());
+        labelRandomInt.setText(QRcodeCurrentBar.getRandomGetal());
+        labelBusinessNumber.setText(QRcodeCurrentBar.getBusinessNumber());
+        labelHashBar.setText(String.valueOf(QRcodeCurrentBar.getHashBar()));
         inputDatastring.clear();
     }
 
@@ -212,7 +209,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         bw.write("");
         bw.close();
 
-        //TODO: NOG TABLE GAAN CLEAREN IN DE APPLICATIE
         bezoeken.clear();
     }
 
@@ -221,11 +217,13 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         if (!tokens.isEmpty()) {
             //CAPSULE OPMAKEN
             currentToken = tokens.get(0);
-            Capsule capsule = new Capsule(currentToken, QRcodeCurrentBar[2]);
+            System.out.println("Dit is de hashBar die we naar de mixing sturen: " + QRcodeCurrentBar.getHashBar());
+            Capsule capsule = new Capsule(currentToken, QRcodeCurrentBar.getHashBar());
 
             boolean doSign = mixingProxyInterface.sendCapsule(capsule);
             if (doSign) {
                 //dan moet men de sign ontvangen
+                System.out.println("Dit is de hashbar als we hem naar sign sturen: " + capsule.getHashBar());
                 byte[] signedCapsule = mixingProxyInterface.signCapsule(capsule);
                 System.out.println("Dit is de bytearray van de sign: " + Arrays.toString(signedCapsule));
 
@@ -247,7 +245,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         //LEAVING TIME IN CAPSULE GAAN FIXEN, TERGELIJK NOG KEER DAT OBECT TERUGSTUREN VOOR ONS BEZOEK AAN TE MAKEN
         Capsule currentCapsule = mixingProxyInterface.requestLeaving(currentToken);
         //BEZOEK LOKAAL OPSLAAN
-        Bezoek bezoek = new Bezoek(currentCapsule.getTimestampEntered(),currentCapsule.getTimestampLeaving(),QRcodeCurrentBar[0],QRcodeCurrentBar[1],QRcodeCurrentBar[2]);
+        Bezoek bezoek = new Bezoek(currentCapsule.getTimestampEntered(),currentCapsule.getTimestampLeaving(),QRcodeCurrentBar.getRandomGetal(),QRcodeCurrentBar.getBusinessNumber(),QRcodeCurrentBar.getHashBar());
         bezoeken.add(bezoek);   //hoeft niet mer perse
         sendToLocalDatabase(bezoek);
     }

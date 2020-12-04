@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface RegistrarInterface extends Remote {
 
-    List requestMonthlyHash(int bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
+    List requestMonthlyHash(String bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
 
     List requestDailyCustomerToken(String phoneNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, SignatureException;
 

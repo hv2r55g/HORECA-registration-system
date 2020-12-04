@@ -85,13 +85,13 @@ public class Registrar implements RegistrarInterface {
         masterKey = aesKey;
     }
 
-    public SecretKeySpec generateDailyKey(int businessNumber, String datum) throws RemoteException {
+    public SecretKeySpec generateDailyKey(String businessNumber, String datum) throws RemoteException {
         String keyData = masterKey.toString()+businessNumber+datum;
         byte[] aesKeyData = keyData.getBytes();
         return new SecretKeySpec(aesKeyData, "AES");
     }
 
-    private String createHash(SecretKeySpec currentKey, int bussinesNumber, String day) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+    private String createHash(SecretKeySpec currentKey, String bussinesNumber, String day) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         //BRON: https://www.novixys.com/blog/hmac-sha256-message-authentication-mac-java/
         //BRON: https://examples.javacodegeeks.com/core-java/crypto/generate-message-authentication-code-mac/
 
@@ -182,7 +182,7 @@ public class Registrar implements RegistrarInterface {
     }
 
     @Override
-    public List<String> requestMonthlyHash(int bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+    public List<String> requestMonthlyHash(String bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         System.out.println("Create mothly keys for: " + bussinesNumber);
         int aantalDagen = 10;
         List<String> monthlyHash = new ArrayList<>();

@@ -12,7 +12,7 @@ public class Capsule implements Serializable{
     private long timestampEntered;
     private long timestampLeaving;
     private byte[] tokenCustomer;
-    private String hashBar;
+    private byte[] hashBar;
     private String dagBezoek;
 
     public static long getSerialVersionUID() {
@@ -23,7 +23,7 @@ public class Capsule implements Serializable{
         return tokenCustomer;
     }
 
-    public String getHashBar() {
+    public byte[] getHashBar() {
         return hashBar;
     }
 
@@ -45,7 +45,7 @@ public class Capsule implements Serializable{
 
     public Capsule(){}
 
-    public Capsule(byte[] tokenCustomer, String hashBar) {
+    public Capsule(byte[] tokenCustomer, byte[] hashBar) {
         this.tokenCustomer = tokenCustomer;
         this.hashBar = hashBar;
         this.timestampEntered = -1;
