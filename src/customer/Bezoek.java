@@ -12,6 +12,7 @@ public class Bezoek {
     private String randomIntBar;
     private String businessNumberBar;
     private byte[] hashBar;
+    private boolean infected;
 
     public long getTimestampEntered() {
         return timestampEntered;
@@ -45,12 +46,49 @@ public class Bezoek {
 
     public Bezoek(){}
 
-    public Bezoek(long timestampEntered,long timestampLeaving,String randomIntBar, String businessNumberBar, byte[] hashBar) {
+    public void setTimestampEntered(long timestampEntered) {
+        this.timestampEntered = timestampEntered;
+    }
+
+    public void setTimestampEnteredString(String timestampEnteredString) {
+        this.timestampEnteredString = timestampEnteredString;
+    }
+
+    public void setTimestampLeaving(long timestampLeaving) {
+        this.timestampLeaving = timestampLeaving;
+    }
+
+    public void setTimestampLeavingString(String timestampLeavingString) {
+        this.timestampLeavingString = timestampLeavingString;
+    }
+
+    public void setRandomIntBar(String randomIntBar) {
+        this.randomIntBar = randomIntBar;
+    }
+
+    public void setBusinessNumberBar(String businessNumberBar) {
+        this.businessNumberBar = businessNumberBar;
+    }
+
+    public void setHashBar(byte[] hashBar) {
+        this.hashBar = hashBar;
+    }
+
+    public boolean isInfected() {
+        return infected;
+    }
+
+    public void setInfected(boolean infected) {
+        this.infected = infected;
+    }
+
+    public Bezoek(long timestampEntered, long timestampLeaving, String randomIntBar, String businessNumberBar, byte[] hashBar) {
         this.timestampEntered = timestampEntered;
         this.timestampLeaving = timestampLeaving;
         this.randomIntBar = randomIntBar;
         this.businessNumberBar = businessNumberBar;
         this.hashBar = hashBar;
+        this.infected = false;
     }
 
     @Override

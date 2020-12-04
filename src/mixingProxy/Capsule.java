@@ -14,6 +14,23 @@ public class Capsule implements Serializable{
     private byte[] tokenCustomer;
     private byte[] hashBar;
     private String dagBezoek;
+    private boolean infected;
+
+    public void setTokenCustomer(byte[] tokenCustomer) {
+        this.tokenCustomer = tokenCustomer;
+    }
+
+    public void setHashBar(byte[] hashBar) {
+        this.hashBar = hashBar;
+    }
+
+    public boolean isInfected() {
+        return infected;
+    }
+
+    public void setInfected(boolean infected) {
+        this.infected = infected;
+    }
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
@@ -50,6 +67,7 @@ public class Capsule implements Serializable{
         this.hashBar = hashBar;
         this.timestampEntered = -1;
         this.timestampLeaving = -1;
+        this.infected = false;
     }
 
     public boolean isErOverlap(Capsule infected){
@@ -68,6 +86,7 @@ public class Capsule implements Serializable{
                 ", tokenCustomer=" + Arrays.toString(tokenCustomer) +
                 ", hashBar='" + hashBar + '\'' +
                 ", dagBezoek='" + dagBezoek + '\'' +
+                ", infected='" + infected + '\'' +
                 '}';
     }
 }
