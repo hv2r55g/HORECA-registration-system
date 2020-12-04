@@ -1,5 +1,7 @@
 package mixingProxy;
 
+import registrar.Token;
+
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
@@ -11,19 +13,19 @@ public class Capsule implements Serializable{
 
     private long timestampEntered;
     private long timestampLeaving;
-    private byte[] tokenCustomer;
-    private byte[] hashBar;
+    private Token tokenCustomer;
+    private String hashBar;
     private String dagBezoek;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }
 
-    public byte[] getTokenCustomer() {
+    public Token getTokenCustomer() {
         return tokenCustomer;
     }
 
-    public byte[] getHashBar() {
+    public String getHashBar() {
         return hashBar;
     }
 
@@ -45,7 +47,7 @@ public class Capsule implements Serializable{
 
     public Capsule(){}
 
-    public Capsule(byte[] tokenCustomer, byte[] hashBar) {
+    public Capsule(Token tokenCustomer, String hashBar) {
         this.tokenCustomer = tokenCustomer;
         this.hashBar = hashBar;
         this.timestampEntered = -1;
@@ -65,7 +67,6 @@ public class Capsule implements Serializable{
         return "Capsule{" +
                 "timestampEntered=" + timestampEntered +
                 ", timestampLeaving=" + timestampLeaving +
-                ", tokenCustomer=" + Arrays.toString(tokenCustomer) +
                 ", hashBar='" + hashBar + '\'' +
                 ", dagBezoek='" + dagBezoek + '\'' +
                 '}';

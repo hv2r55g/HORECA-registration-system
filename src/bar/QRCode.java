@@ -1,16 +1,18 @@
 package bar;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class QRCode {
+public class QRCode implements Serializable {
+    private static final long serialVersionUID = 20120732125400L;
     private String randomGetal;
     private String businessNumber;
-    private byte[] hashBar;
+    private String hashBar;
 
     public QRCode() {
     }
 
-    public QRCode(String randomGetal, String businessNumber, byte[] hashBar) {
+    public QRCode(String randomGetal, String businessNumber, String hashBar) {
         this.randomGetal = randomGetal;
         this.businessNumber = businessNumber;
         this.hashBar = hashBar;
@@ -32,11 +34,11 @@ public class QRCode {
         this.businessNumber = businessNumber;
     }
 
-    public byte[] getHashBar() {
+    public String getHashBar() {
         return hashBar;
     }
 
-    public void setHashBar(byte[] hashBar) {
+    public void setHashBar(String hashBar) {
         this.hashBar = hashBar;
     }
 
@@ -45,7 +47,7 @@ public class QRCode {
         return "QRCode{" +
                 "randomGetal='" + randomGetal + '\'' +
                 ", businessNumber='" + businessNumber + '\'' +
-                ", hashBar=" + Arrays.toString(hashBar) +
+                ", hashBar=" + hashBar +
                 '}';
     }
 }

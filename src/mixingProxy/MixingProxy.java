@@ -2,6 +2,7 @@ package mixingProxy;
 
 import matchingService.MatchingServiceInterface;
 import registrar.RegistrarInterface;
+import registrar.Token;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -27,7 +28,7 @@ public class MixingProxy implements MixingProxyInterface, Remote {
     public MixingProxy() {
         super();
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairOfTheDay = keyPairGenerator.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -89,25 +90,30 @@ public class MixingProxy implements MixingProxyInterface, Remote {
 
 
     public boolean checkValidityToken(Capsule capsule) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
-        Date date = new Date();
-        SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
-        String dagVanVandaag = df.format(date);
-
         Signature signatureVerify = Signature.getInstance("SHA256WithDSA");
+        byte[] sign = Base64.getDecoder().decode(capsule.getTokenCustomer().getSignature().getBytes());
+        byte[] data = Base64.getDecoder().decode(capsule.getTokenCustomer().getDatumInfo().getBytes());
         signatureVerify.initVerify(publicKeyToday);
-        signatureVerify.update(dagVanVandaag.getBytes());
-
-        boolean isValid = signatureVerify.verify(capsule.getTokenCustomer());
-        return isValid;
+        signatureVerify.update(data);
+        return signatureVerify.verify(sign);
     }
 
-    public boolean checkDayOfToken(Capsule capsule) throws RemoteException {
-        boolean dayOk = false;
-        if (capsule.getDagBezoek().equals(dagVanVandaag)) {
-            dayOk = true;
+    public boolean checkDayOfToken(Capsule capsule) throws RemoteException, NoSuchAlgorithmException {
+        //OMZETTEN NAAR BYTEaRRAYS
+        byte[] data = Base64.getDecoder().decode(capsule.getTokenCustomer().getDatumInfo().getBytes());
+        byte[] dataBytes = Arrays.copyOfRange(data,20,data.length);
+
+        String dateValue = new String(dataBytes);
+        System.out.println("Dit zou normaal de value moeten zijn van den datem die van in de sign steken " + dateValue);
+        System.out.println("Dit is de dag van vandaag: " + dagVanVandaag);
+
+        if (dateValue.equals(dagVanVandaag)){
+            return true;
+        } else {
+            System.out.println("De dag van de token komt niet overeen met de dag van vandaag");
+            return false;
         }
 
-        return dayOk;
     }
 
     public boolean checkTokenNotSpendYet(Capsule capsule) {
@@ -116,9 +122,9 @@ public class MixingProxy implements MixingProxyInterface, Remote {
         if (capsules.isEmpty()) {
             isNewToken = true;
         } else {
-            //TODO: Voldoende enkel de huidige capsules te checken?
             for (Capsule capsuleInLijst : capsules) {
-                if (Arrays.equals(capsule.getTokenCustomer(),capsuleInLijst.getTokenCustomer())) {
+                //TODO: vergelijken van
+                if (capsule.getTokenCustomer().getSignature().equals(capsuleInLijst.getTokenCustomer().getSignature())) {
                     isNewToken = false;
                     break;
                 }
@@ -200,24 +206,24 @@ public class MixingProxy implements MixingProxyInterface, Remote {
     }
 
     @Override
-    public byte[] signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException {
-        Signature signature = Signature.getInstance("SHA256WithDSA");
-        //SecureRandom secureRandom = new SecureRandom();
-        //signature.initSign(keyPairOfTheDay.getPrivate(), secureRandom);
+    public String signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException {
+        Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(keyPairOfTheDay.getPrivate());
-        System.out.println("Voor: "+capsule.getHashBar());
-        signature.update(capsule.getHashBar());
-        System.out.println("Na: "+capsule.getHashBar());
-        byte[] signedToken = signature.sign();
-        System.out.println("De signed hash ziet er zo uit: "+signedToken);
-        return signedToken;
+        //System.out.println("Voor: "+capsule.getHashBar());
+        byte[] result = Base64.getDecoder().decode(capsule.getHashBar());
+        signature.update(result);
+        //System.out.println("Na: "+capsule.getHashBar());
+        byte[] ACK = signature.sign();
+        String ACKString = Base64.getEncoder().encodeToString(ACK);
+        System.out.println("De signed hash ziet er zo uit: "+ACKString);
+        return ACKString;
     }
 
     @Override
-    public Capsule requestLeaving(byte[] currentToken) throws RemoteException {
+    public Capsule requestLeaving(Token currentToken) throws RemoteException {
         //TOKEN GAAN ZOEKEN EN EIND TIMESTAMP AAN TOEVOEGEN
         for (Capsule c: capsules){
-            if (Arrays.equals(c.getTokenCustomer(),currentToken)){
+            if (currentToken.getSignature().equals(c.getTokenCustomer().getSignature())){
                 //System.out.println("Capsule voor: " + c.toString());
                 c.setTimestampLeaving(System.currentTimeMillis());
                 //System.out.println("Capsule na: " + c.toString());

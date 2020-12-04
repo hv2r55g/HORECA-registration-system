@@ -75,6 +75,7 @@
                <font>
                   <Font size="25.0" />
                </font></Button>
+            <Button fx:id="buttonTest" mnemonicParsing="false" onAction="#requestQRCode" text="Test" />
          </children>
       </HBox>
       <BorderPane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">

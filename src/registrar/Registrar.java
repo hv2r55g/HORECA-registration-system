@@ -4,6 +4,9 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
@@ -106,8 +109,7 @@ public class Registrar implements RegistrarInterface {
         String teHashenInfo = encodedKey + bussinesNumber + day;
         byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
         byte[] result = mac.doFinal(teHashenInfoInBytes);
-        String resultString = new String(result, StandardCharsets.UTF_8);
-        //System.out.println("Hoe ziet zo'n hash eruit: " + resultString);
+        String resultString = Base64.getEncoder().encodeToString(result);
         return resultString;
     }
 
@@ -116,16 +118,35 @@ public class Registrar implements RegistrarInterface {
     //-----------------------------------------------OVERIDE METHODES VAN DE INTERFACE----------------------------------------------------------//
 
     @Override
-    public List requestDailyCustomerToken(String phoneNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    public List requestDailyCustomerToken(String phoneNumber) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         System.out.println("Generate tokens for " + phoneNumber);
-        List<byte[]> tokens = new ArrayList<>();
+        List<Token> tokens = new ArrayList<>();
         for (int i = 0; i < aantalTokensPerCustomer; i++) {
+            //VASTE LENGTE GEVEN AAN DE TOKENS
+            SecureRandom random = new SecureRandom();
+            byte[] bytes = new byte[20];
+            random.nextBytes(bytes);
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(bos);
+
+            dos.write(bytes);
+            dos.writeBytes(dagVanVandaag);
+            dos.flush();
+            byte[] output = bos.toByteArray();
+
+            //NU EFFECTIEF GAAN SIGNEN
             Signature signature = Signature.getInstance("SHA256WithDSA");
-            SecureRandom secureRandom = new SecureRandom();
-            signature.initSign(keyPairOfTheDay.getPrivate(),secureRandom);
-            signature.update(dagVanVandaag.getBytes());
+            signature.initSign(keyPairOfTheDay.getPrivate());
+            signature.update(output);
+
             byte[] token = signature.sign();
-            tokens.add(token);
+
+            //STRING MAKEN DAWE KUNNEN COPY PASTEN
+            String data = Base64.getEncoder().encodeToString(output);
+            String signatureString = Base64.getEncoder().encodeToString(token);
+
+            tokens.add(new Token(signatureString,data));
         }
 
         //NOG GAAN MAPPEN DAT WE DEZE TOKENS AAN DAT TELEFOONNUMMER GEGEVEN HEBBEN

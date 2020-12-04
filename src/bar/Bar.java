@@ -11,6 +11,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.net.MalformedURLException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
@@ -33,7 +34,6 @@ public class Bar extends UnicastRemoteObject implements Remote {
         //System.out.println("Geef een bussiness number: ");
         //int bussinesNumberFromScanner = sc.nextInt();
         String bussinesNumberFromScanner = Integer.toString(1);
-
         Bar currentBar = new Bar(bussinesNumberFromScanner);
 
         //Connecten met de registrar
@@ -55,6 +55,7 @@ public class Bar extends UnicastRemoteObject implements Remote {
 
     //-------------------------------------------------------OVERIGE METHODES-------------------------------------------------------------------//
     private void requestMonthlyHash() throws RemoteException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
+        //LIJST VAN STRING WORDT TERUG GEGEVEN
         mothlyHash = registrarInterface.requestMonthlyHash(bussinesNumber);
     }
 
@@ -85,11 +86,12 @@ public class Bar extends UnicastRemoteObject implements Remote {
         String teHashenInfo = randomGetal + mothlyHash.get(0);
         byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
         byte[] result = mac.doFinal(teHashenInfoInBytes);
+        String QrString = Base64.getEncoder().encodeToString(result);
         //String resultString = new String(result, StandardCharsets.UTF_8);
         //System.out.println("Hoe ziet zo'n hash voor de QR code eruit: " + resultString);
 
         //NOG DE 3 PARAMETERS OPSLAAN OM IN DE TOEKOMST EEN QR CODE TE MAKEN
-        qrCode = new QRCode(randomGetal,bussinesNumber,result);
+        qrCode = new QRCode(randomGetal,bussinesNumber,QrString);
 
     }
 

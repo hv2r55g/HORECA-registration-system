@@ -42,12 +42,12 @@ public class Doctor {
             while (sc.hasNextLine()){
                 String currentBezoekString = sc.nextLine();
                 String[] gegevens = currentBezoekString.split(";");
-                Bezoek currentBezoek = new Bezoek(Long.parseLong(gegevens[0]),Long.parseLong(gegevens[1]),gegevens[2],gegevens[3],gegevens[4].getBytes("UTF-8"));
+                Bezoek currentBezoek = new Bezoek(Long.parseLong(gegevens[0]),Long.parseLong(gegevens[1]),gegevens[2],gegevens[3],gegevens[4]);
                 bezoekenPatient.add(currentBezoek);
             }
             System.out.println("Patient: " + currentPatient + " heeft de afgelopen tijd " + bezoekenPatient.size() + " keer een bezoek gebracht aan een bar of restaurant.");
 
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+        } catch (FileNotFoundException e) {
             System.out.println("De patient heeft nog geen dokterbestand aangemaakt");
         }
     }

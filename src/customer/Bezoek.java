@@ -11,7 +11,7 @@ public class Bezoek {
     private String timestampLeavingString;
     private String randomIntBar;
     private String businessNumberBar;
-    private byte[] hashBar;
+    private String hashBar;
 
     public long getTimestampEntered() {
         return timestampEntered;
@@ -29,7 +29,7 @@ public class Bezoek {
         return businessNumberBar;
     }
 
-    public byte[] getHashBar() {
+    public String getHashBar() {
         return hashBar;
     }
 
@@ -45,7 +45,7 @@ public class Bezoek {
 
     public Bezoek(){}
 
-    public Bezoek(long timestampEntered,long timestampLeaving,String randomIntBar, String businessNumberBar, byte[] hashBar) {
+    public Bezoek(long timestampEntered,long timestampLeaving,String randomIntBar, String businessNumberBar, String hashBar) {
         this.timestampEntered = timestampEntered;
         this.timestampLeaving = timestampLeaving;
         this.randomIntBar = randomIntBar;
@@ -62,7 +62,7 @@ public class Bezoek {
                 ", timestampLeavingString='" + timestampLeavingString + '\'' +
                 ", randomIntBar='" + randomIntBar + '\'' +
                 ", businessNumberBar='" + businessNumberBar + '\'' +
-                ", hashBar=" + Arrays.toString(hashBar) +
+                ", hashBar=" + hashBar +
                 '}';
     }
 }
