@@ -15,4 +15,6 @@ public interface MixingProxyInterface extends Remote {
     String signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException;
 
     Capsule requestLeaving(Token currentToken) throws RemoteException;
+
+    String requestLogoOfTheDay(String hashBar) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, SignatureException;
 }

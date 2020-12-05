@@ -1,26 +1,20 @@
 package doctor;
 
-import bar.Bar;
 import customer.Bezoek;
 import matchingService.MatchingServiceInterface;
-import mixingProxy.MixingProxyInterface;
 import registrar.RegistrarInterface;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 public class Doctor  extends UnicastRemoteObject implements Remote {
     private String currentPatient;

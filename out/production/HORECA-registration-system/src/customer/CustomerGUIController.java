@@ -73,7 +73,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private ObservableList<Bezoek> bezoeken;
     private List<Bezoek> bezoekenLaatsteZevenDagen;
     private QRCode QRcodeCurrentBar;
-    private Map<Character,String> mappingIcons;
     private RegistrarInterface registrarInterface;
     private MixingProxyInterface mixingProxyInterface;
     private MatchingServiceInterface matchingServiceInterface;
@@ -85,7 +84,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
 
     private void initAttributen(){
         this.bezoeken = leesLocalDatabase();
-        this.mappingIcons = new HashMap<>();
     }
 
     private List<Bezoek> getBezoekenLaatsteZevenDagen(){
@@ -127,35 +125,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
             System.out.println("Nieuwe gebruiker");
         }
         return result;
-    }
-
-    private void initLogos(){
-        //1 KEER PER DAG BEIDE LIJSTEN SHUFFELEN? KWEET ALLEEN NIET GOED HOE IK HET MOET IMPLEMENTEREN
-        //VOORLOPIG GEWOON INDEXEN GELIJK STELLEN AAN ELKAAR
-        char[] alfabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p','q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-        String[] afbeeldingen = {"BlueDot.jpg","BlueSquare.jpg","BlueStar.jpg","BlueTriangle.jpg","BlueHeart.jpg","BlueRuit.jpg",
-                "YellowDot.jpg","YellowSquare.jpg","YellowStar.jpg","YellowTriangle.jpg", "YellowHeart.jpg","YellowRuit.jpg",
-                "GreenDot.jpg","GreenSquare.jpg","GreenStar.jpg","GreenTriangle.jpg","GreenHeart.jpg","GreenRuit.jpg",
-                "RedDot.jpg","RedSquare.jpg","RedStar.jpg","RedTriangle.jpg","RedHeart.jpg","RedRuit.jpg",
-                "PinkRuit.jpg","OrangeRuit.jpg",};
-        //SHUFFELEN
-        List<Character> alfabetArray = new ArrayList<>();
-        for (Character c: alfabet){
-            alfabetArray.add(c);
-        }
-        List<String> afbeeldingenArray = Arrays.asList(afbeeldingen);
-        //Collections.shuffle(intervalArray);
-        //Collections.shuffle(afbeeldingenArray);
-
-        boolean evenGroot = alfabet.length == afbeeldingen.length;
-        System.out.println(alfabet.length);
-        System.out.println(afbeeldingen.length);
-        System.out.println("Zijn de sizes even groot? " + evenGroot);
-        if (evenGroot){
-            for (int i = 0; i < alfabet.length; i++) {
-                mappingIcons.put(alfabetArray.get(i),afbeeldingenArray.get(i));
-            }
-        }
     }
 
     private void initConnecties(){
@@ -218,7 +187,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     public void initController(String telefoonr) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
         this.phonenumber = telefoonr;
         initAttributen();
-        initLogos();
         initConnecties();
         initTable();
         //1 AANVRAAG (VAN 48 TOKENS) PER DAG, IEDERE TOKEN KAN MAAR 1 KEER GEBRUIKT WORDEN
@@ -262,13 +230,10 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
             boolean doSign = mixingProxyInterface.sendCapsule(capsule);
             if (doSign) {
                 //dan moet men de sign ontvangen
-                System.out.println("Dit is de hashbar als we hem naar sign sturen: " + capsule.getHashBar());
-                String signedCapsule = mixingProxyInterface.signCapsule(capsule);
-                System.out.println("Dit is de bytearray van de sign en zou voor iedereen van dezelfde bar gelijk moeten zijn: " + signedCapsule);
+                String titelLogo = mixingProxyInterface.signCapsule(capsule);
 
-                //KIJKEN WELK LOGO DIE MOET KRIJGEN
-                //BEETJE INT MIDDEN ANDERS STEEDS ZELFDE GETAL
-                showLogo(signedCapsule.charAt(10));
+                //LOGO INLADEN
+                setLogo(titelLogo);
             } else {
                 System.out.println("bezoek gefailed, waarschijnlijk door een check");
             }
@@ -276,6 +241,17 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
             tokens.remove(0);
         } else {
             System.out.println("U kan deze bar helaas niet meer bezoeken, uw tokens voor vandaag zijn verbruikt");
+        }
+    }
+
+    private void setLogo(String titelLogo) {
+        String path = "src/Resources/Icons/" + titelLogo;
+        File file = new File(path);
+        try {
+            Image image = new Image(new FileInputStream(file));
+            imageViewSign.setImage(image);
+        } catch (FileNotFoundException e) {
+            System.out.println("Image niet gevonden in de resource folder");
         }
     }
 
@@ -291,32 +267,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
 
     private void requestTokens() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         tokens = registrarInterface.requestDailyCustomerToken(phonenumber);
-    }
-
-    private void showLogo(char signedCapsule) {
-        System.out.println("Dit is het karakter: " + Character.toLowerCase(signedCapsule));
-        if (mappingIcons.containsKey(Character.toLowerCase(signedCapsule))) {
-            //CHAR BEVINDT ZICH IN DE STRING
-            String path = "src/Resources/Icons/" + mappingIcons.get(Character.toLowerCase(signedCapsule));
-            File file = new File(path);
-            try {
-                Image image = new Image(new FileInputStream(file));
-                imageViewSign.setImage(image);
-            } catch (FileNotFoundException e) {
-                System.out.println("Image niet gevonden in de resource folder");
-            }
-        } else {
-            //CHAR ZAL EEN SYMBOOL ZIJN
-            String path = "src/Resources/Icons/Thunder.jpg";
-            File file = new File(path);
-            try {
-                Image image = new Image(new FileInputStream(file));
-                imageViewSign.setImage(image);
-            } catch (FileNotFoundException e) {
-                System.out.println("Image niet gevonden in de resource folder");
-            }
-        }
-
     }
 
     private void sendToLocalDatabase(Bezoek bezoek){

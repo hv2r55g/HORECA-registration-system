@@ -8,11 +8,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import matchingService.MatchingServiceInterface;
 import registrar.RegistrarInterface;
 import registrar.Token;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
@@ -35,6 +39,7 @@ public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
     private PublicKey publicKeyToday;
     private KeyPair keyPairOfTheDay;
     private String dagVanVandaag;
+    private Map<Character,String> mappingIcons;
     private RegistrarInterface registrarInterface;
     private MatchingServiceInterface matchingServiceInterface;
 
@@ -43,6 +48,7 @@ public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
     public void initController() throws RemoteException {
         initConnecties();
         initAttributen();
+        initLogos();
         initTable();
         getPublicKey();
     }
@@ -60,6 +66,37 @@ public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("ddMMMMyyyy");
         dagVanVandaag = sdf.format(date);
+
+        this.mappingIcons = new HashMap<>();
+    }
+
+    private void initLogos(){
+        //1 KEER PER DAG BEIDE LIJSTEN SHUFFELEN? KWEET ALLEEN NIET GOED HOE IK HET MOET IMPLEMENTEREN
+        //VOORLOPIG GEWOON INDEXEN GELIJK STELLEN AAN ELKAAR
+        char[] alfabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p','q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+        String[] afbeeldingen = {"BlueDot.jpg","BlueSquare.jpg","BlueStar.jpg","BlueTriangle.jpg","BlueHeart.jpg","BlueRuit.jpg",
+                "YellowDot.jpg","YellowSquare.jpg","YellowStar.jpg","YellowTriangle.jpg", "YellowHeart.jpg","YellowRuit.jpg",
+                "GreenDot.jpg","GreenSquare.jpg","GreenStar.jpg","GreenTriangle.jpg","GreenHeart.jpg","GreenRuit.jpg",
+                "RedDot.jpg","RedSquare.jpg","RedStar.jpg","RedTriangle.jpg","RedHeart.jpg","RedRuit.jpg",
+                "PinkRuit.jpg","OrangeRuit.jpg",};
+        //SHUFFELEN
+        List<Character> alfabetArray = new ArrayList<>();
+        for (Character c: alfabet){
+            alfabetArray.add(c);
+        }
+        List<String> afbeeldingenArray = Arrays.asList(afbeeldingen);
+        //Collections.shuffle(intervalArray);
+        //Collections.shuffle(afbeeldingenArray);
+
+        boolean evenGroot = alfabet.length == afbeeldingen.length;
+        System.out.println(alfabet.length);
+        System.out.println(afbeeldingen.length);
+        System.out.println("Zijn de sizes even groot? " + evenGroot);
+        if (evenGroot){
+            for (int i = 0; i < alfabet.length; i++) {
+                mappingIcons.put(alfabetArray.get(i),afbeeldingenArray.get(i));
+            }
+        }
     }
 
     private void initTable() {
@@ -207,6 +244,7 @@ public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
 
     @Override
     public String signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException {
+        //STRING GAAN SIGNEN EN DAN GEPASTE AFBEELDING GAAN DOORSTUREN
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(keyPairOfTheDay.getPrivate());
         //System.out.println("Voor: "+capsule.getHashBar());
@@ -216,7 +254,41 @@ public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
         byte[] ACK = signature.sign();
         String ACKString = Base64.getEncoder().encodeToString(ACK);
         System.out.println("De signed hash ziet er zo uit: "+ACKString);
-        return ACKString;
+
+        //NU AFBEELDING GAAN ZOEKEN IN DE MAPPING
+        String titelIcon = zoekAfbeelding(ACKString);
+        return titelIcon;
+    }
+
+    @Override
+    public String requestLogoOfTheDay(String hashBar) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        //JUIST DEZELFDE METHODE ALS HIERBOVEN, MAAR WOU ZE NIET SAMENVOEGEN VOOR DE DUIDELIJKHEID, DEZE METHODE WORDT
+        //OPGEROEPEN ALS DE BAR OPEN GAAT
+
+        //STRING GAAN SIGNEN EN DAN GEPASTE AFBEELDING GAAN DOORSTUREN
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(keyPairOfTheDay.getPrivate());
+        byte[] result = Base64.getDecoder().decode(hashBar);
+        signature.update(result);
+        byte[] ACK = signature.sign();
+        String ACKString = Base64.getEncoder().encodeToString(ACK);
+
+        //NU AFBEELDING GAAN ZOEKEN IN DE MAPPING
+        String titelIcon = zoekAfbeelding(ACKString);
+        return titelIcon;
+    }
+
+    private String zoekAfbeelding(String ackString) {
+        //10DE CHAR VOOR BEETJE WILLEKEUR
+        char karakterKey = ackString.charAt(10);
+        System.out.println("Dit is het karakter: " + Character.toLowerCase(karakterKey));
+        if (mappingIcons.containsKey(Character.toLowerCase(karakterKey))) {
+            //CHAR BEVINDT ZICH IN DE STRING
+            return mappingIcons.get(Character.toLowerCase(karakterKey));
+        } else {
+            //CHAR ZAL EEN SYMBOOL ZIJN
+            return "Thunder.jpg";
+        }
     }
 
     @Override
