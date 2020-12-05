@@ -1,6 +1,7 @@
 package customer;
 
 import bar.QRCode;
+import doctor.CriticalTuple;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
@@ -267,6 +268,37 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         labelBusinessNumber.setText("");
         labelRandomInt.setText("");
         imageViewSign.setImage(new Image(new FileInputStream(new File("src/Resources/Icons/default.jpg"))));
+    }
+
+    @FXML
+    private void amIInfected() throws RemoteException {
+        //STAP 1: CRITICAL TUPLES OPHALEN
+        List<CriticalTuple> criticalTuples = matchingServiceInterface.requestCriticalTuples();
+
+
+        for (CriticalTuple currentCriticalTuple: criticalTuples){
+            //STAP 2: KIJKEN OF ER OVERLAP IS TUSSEN DE TUPLES EN ONZE BEZOEKEN
+            //BEZOEKEN OPHALEN DIE GLEIJKE HASH HEBBEN
+            List<Bezoek> bezoekenUitInfectedBar = new ArrayList<>();
+            for (Bezoek bezoek: bezoeken){
+                if (bezoek.getHashBar().equals(currentCriticalTuple.getHashBar())){
+                    bezoekenUitInfectedBar.add(bezoek);
+                }
+            }
+
+            //STAP 3: KIJKEN WELKE BEZOEKEN ER OVERLAP IS, BEST METHODE IS OVERLAP MAKEN. BIJ CAPSULE HAD IK DAT AL GEMAAKT MAAR MOET DAAR NIET STAAN
+            List<Capsule> geinfecteerdeCapsules = new ArrayList<>();
+            for (Bezoek bezoek: bezoekenUitInfectedBar){
+                //if er overlap is
+                    // nieuwe capsule maken met dezelfde token en gegevens en toevoegen aan de geinfecteerdeCap, wanneer matching een duplicatie ontvangt moet hij dan geinformeerd op true zetten
+                //else
+                    //User safe, nothing happens
+            }
+
+            //STAP 4: lIJST VAN GEINFECTEERDE DOORSTUREN NAAR MIXING, MISSCHIEN VOOR DE DUIDELIJKHEID NIEUWE INTERFACE METHODE
+
+
+        }
     }
 
     private void requestTokens() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {

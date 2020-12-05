@@ -3,6 +3,7 @@ package matchingService;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import customer.Bezoek;
+import doctor.CriticalTuple;
 import mixingProxy.Capsule;
 import mixingProxy.MixingProxyInterface;
 import registrar.Registrar;
@@ -26,6 +27,7 @@ public class MatchingService implements MatchingServiceInterface, Remote{
     private RegistrarInterface registrarInterface;
     private List<Capsule> capsulesDB = new ArrayList<>();
     private List<Capsule> infectedCapsules = new ArrayList<>();
+    private List<CriticalTuple> criticalTuples = new ArrayList<>();
     private ListMultimap<String, String> mappingDayNyms = ArrayListMultimap.create();
     public MatchingService(){super(); }
 
@@ -128,6 +130,32 @@ public class MatchingService implements MatchingServiceInterface, Remote{
         }
 
     }
+    //TODO:
+    //Wat er gebeurt:
+    //        1) Docter stuurt de Bezoeken van de COVID patient door
+    //        2) Matching ontvangt die en gaat alle capsules die gelijk zijn aan de bezoeken (dus alle parameters) op "geinformeerd zetten" (logisch want patient weet ondertussen datem covid heeft. De andere worden op "niet geinformeerd gezet"
+    //        3) Matching maakt een Critical Tuple aan met daarin (hashBar + interval. Die critical tuple wil eigenlijk gewoon zeggen ja rond dat uur zat er een COVID in uw Bar
+    //        4) De andere Customers drukken ton keer op de COVID knop en halen die critical tuples op van de matching, ze kijken of er in hun lokale database een bezoek zit die overeenkomt met de gegevens van de critial tuple.
+    //        5) Als ze zien daze een match hebben maken ze een nieuwe Capsule aan met dezelfde token als dien dag, mixing flusht dat ton, Matching checkt of die capsule niet al in zijn DB zit --> Zo ja dan zet die de capsule op "geinformeerd"
+    //        6) Wanneer er op het einde van de dag nog capsules zijn die op "niet geinformeerd" staan dan worden die naar de registrar gestuurd. De registrar weet namelijk van wie de tokens zijn en gaat de mapping van tokens overlopen en ze informeren via berichtje ofz
+
+    @Override
+    public void receiveInfectedBezoeken(List<Bezoek> infectedBezoeken) throws RemoteException {
+        //STAP 1: ALLE CAPSULES DIE OVEREENKOMEN MET DE BEZOEKEN, KORTOM DE USER ZIJN EIGEN CAPSULES GAAN ZOEKEN, EN DE INFORMED TAG OP TRUE ZETTEN --> DE OVERIGE WORDEN OP FALSE GEZET OF BLIJVEN STAAN
+        // DEZE ACTIE STAAT DUS GEWOON GELIJK AAN HET AL OP GEINFROMEERD ZETTEN VAN DE USER ZIJN EIGEN TOKENS
+
+        //STAP 2: AANMAKEN VAN EEN CRITICAL TUPLE, DEZE TUPELS GAAN OPSLAAN TOT EEN USER ZE OPVRAAGD
+        //CriticalTuple currentCritical = new CriticalTuple() --> Zo twa
+
+        //STAP 3: MATCHING IS KLAAR MET ZIJN WERK EN WACHT TOT USER EEN GETCRITICALTUPLE REQUEST DOEN
+    }
+
+    @Override
+    public List<CriticalTuple> requestCriticalTuples() throws RemoteException {
+        return criticalTuples;
+    }
+
+
     //------------------------------------------------------------------------------------------------------------------------------------------//
 
 }

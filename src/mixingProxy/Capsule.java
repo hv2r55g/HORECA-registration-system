@@ -22,6 +22,7 @@ public class Capsule implements Serializable{
     private String hashBar;
     private String dagBezoek;
     private boolean infected;
+    private boolean geinformeerd;
     //VOOR GUI
     private String tokenSign;
     private String tokenData;

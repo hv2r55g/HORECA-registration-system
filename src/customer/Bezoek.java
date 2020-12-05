@@ -1,10 +1,12 @@
 package customer;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-public class Bezoek {
+public class Bezoek implements Serializable {
+    private static final long serialVersionUID = 20120732225400L;
     private long timestampEntered;
     private String timestampEnteredString;
     private long timestampLeaving;

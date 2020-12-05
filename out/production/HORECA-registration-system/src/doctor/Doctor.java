@@ -25,12 +25,6 @@ public class Doctor  extends UnicastRemoteObject implements Remote {
         super();
     }
 
-    public Doctor(String patient) throws RemoteException {
-        super();
-        this.currentPatient = patient;
-        this.bezoekenPatient = new ArrayList<>();
-    }
-
     public String getCurrentPatient() {
         return currentPatient;
     }
@@ -48,19 +42,15 @@ public class Doctor  extends UnicastRemoteObject implements Remote {
     }
 
     public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
-
-
         Doctor currentDoctor = new Doctor();
 
-        //Connecten met de registrar
+        //Connecten met de Matching server
         String hostname = "localhost";
         String clientService = "MatchingListening";
-        String servicename = "MatchingService";
+        String servicename = "MatchingServiceService";
         Naming.rebind("rmi://" + hostname + "/" + clientService, currentDoctor);
-        RegistrarInterface registrarInterface = (RegistrarInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
         currentDoctor.matchingServiceInterface = (MatchingServiceInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
 
-        System.out.println("Welkom dokter");
         //System.out.println("Wie bent u?");
         //Scanner sc = new Scanner(System.in);
         //String telefoonNrPatient = sc.nextLine();
@@ -71,6 +61,13 @@ public class Doctor  extends UnicastRemoteObject implements Remote {
         //PATIENT HEEFT COVID, LEES BEZOEKEN IN
         currentDoctor.leesBezoekenPatientIn();
 
+        //BEZOEKEN NAAR MATCHING STUREN
+        currentDoctor.stuurNaarMatching();
+
+    }
+
+    private void stuurNaarMatching() throws RemoteException {
+        matchingServiceInterface.receiveInfectedBezoeken(bezoekenPatient);
     }
 
     public void setInfected(List<Bezoek> bezoekenPatient){
