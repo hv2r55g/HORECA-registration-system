@@ -11,7 +11,7 @@ public class Bezoek {
     private String timestampLeavingString;
     private String randomIntBar;
     private String businessNumberBar;
-    private byte[] hashBar;
+    private String hashBar;
     private boolean infected;
 
     public long getTimestampEntered() {
@@ -30,7 +30,7 @@ public class Bezoek {
         return businessNumberBar;
     }
 
-    public byte[] getHashBar() {
+    public String getHashBar() {
         return hashBar;
     }
 
@@ -43,37 +43,6 @@ public class Bezoek {
         return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampLeaving));
     }
 
-
-    public Bezoek(){}
-
-    public void setTimestampEntered(long timestampEntered) {
-        this.timestampEntered = timestampEntered;
-    }
-
-    public void setTimestampEnteredString(String timestampEnteredString) {
-        this.timestampEnteredString = timestampEnteredString;
-    }
-
-    public void setTimestampLeaving(long timestampLeaving) {
-        this.timestampLeaving = timestampLeaving;
-    }
-
-    public void setTimestampLeavingString(String timestampLeavingString) {
-        this.timestampLeavingString = timestampLeavingString;
-    }
-
-    public void setRandomIntBar(String randomIntBar) {
-        this.randomIntBar = randomIntBar;
-    }
-
-    public void setBusinessNumberBar(String businessNumberBar) {
-        this.businessNumberBar = businessNumberBar;
-    }
-
-    public void setHashBar(byte[] hashBar) {
-        this.hashBar = hashBar;
-    }
-
     public boolean isInfected() {
         return infected;
     }
@@ -82,7 +51,9 @@ public class Bezoek {
         this.infected = infected;
     }
 
-    public Bezoek(long timestampEntered, long timestampLeaving, String randomIntBar, String businessNumberBar, byte[] hashBar) {
+    public Bezoek(){}
+    
+    public Bezoek(long timestampEntered,long timestampLeaving,String randomIntBar, String businessNumberBar, String hashBar) {
         this.timestampEntered = timestampEntered;
         this.timestampLeaving = timestampLeaving;
         this.randomIntBar = randomIntBar;
@@ -100,7 +71,7 @@ public class Bezoek {
                 ", timestampLeavingString='" + timestampLeavingString + '\'' +
                 ", randomIntBar='" + randomIntBar + '\'' +
                 ", businessNumberBar='" + businessNumberBar + '\'' +
-                ", hashBar=" + Arrays.toString(hashBar) +
+                ", hashBar=" + hashBar +
                 '}';
     }
 }

@@ -2,8 +2,11 @@ package mixingProxy;
 
 import customer.Bezoek;
 
+import registrar.Token;
+
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,17 +16,54 @@ public class Capsule implements Serializable{
 
     private long timestampEntered;
     private long timestampLeaving;
-    private byte[] tokenCustomer;
-    private byte[] hashBar;
+    private String timestampEnteredString;
+    private String timestampLeavingString;
+    private Token tokenCustomer;
+    private String hashBar;
     private String dagBezoek;
     private boolean infected;
+    //VOOR GUI
+    private String tokenSign;
+    private String tokenData;
 
-    public void setTokenCustomer(byte[] tokenCustomer) {
+    public long getTimestampEntered() {
+        return timestampEntered;
+    }
+
+    public void setTimestampEntered(long timestampEntered) {
+        this.timestampEntered = timestampEntered;
+    }
+
+    public long getTimestampLeaving() {
+        return timestampLeaving;
+    }
+
+    public void setTimestampLeaving(long timestampLeaving) {
+        this.timestampLeaving = timestampLeaving;
+    }
+
+    public Token getTokenCustomer() {
+        return tokenCustomer;
+    }
+
+    public void setTokenCustomer(Token tokenCustomer) {
         this.tokenCustomer = tokenCustomer;
     }
 
-    public void setHashBar(byte[] hashBar) {
+    public String getHashBar() {
+        return hashBar;
+    }
+
+    public void setHashBar(String hashBar) {
         this.hashBar = hashBar;
+    }
+
+    public String getDagBezoek() {
+        return dagBezoek;
+    }
+
+    public void setDagBezoek(String dagBezoek) {
+        this.dagBezoek = dagBezoek;
     }
 
     public boolean isInfected() {
@@ -34,38 +74,32 @@ public class Capsule implements Serializable{
         this.infected = infected;
     }
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
+    public String getTimestampEnteredString() {
+        return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampEntered));
     }
 
     public byte[] getTokenCustomer() {
         return tokenCustomer;
     }
 
-    public byte[] getHashBar() {
-        return hashBar;
+    public String getTimestampLeavingString() {
+        return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampLeaving));
     }
 
-    public String getDagBezoek() {
-        return dagBezoek;
+    public String getTokenSign() {
+        return tokenSign;
     }
 
-    public long getTimestampEntered() { return timestampEntered; }
-
-    public long getTimestampLeaving() { return timestampLeaving; }
-
-    public void setDagBezoek(String dagBezoek) { this.dagBezoek = dagBezoek; }
-
-    public void setTimestampEntered(long timestampEntered) { this.timestampEntered = timestampEntered; }
-
-    public void setTimestampLeaving(long timestampLeaving) {
-        this.timestampLeaving = timestampLeaving;
+    public String getTokenData() {
+        return tokenData;
     }
 
     public Capsule(){}
 
-    public Capsule(byte[] tokenCustomer, byte[] hashBar) {
+    public Capsule(Token tokenCustomer, String hashBar) {
         this.tokenCustomer = tokenCustomer;
+        this.tokenSign = tokenCustomer.getSignature();
+        this.tokenData = tokenCustomer.getDatumInfo();
         this.hashBar = hashBar;
         this.timestampEntered = -1;
         this.timestampLeaving = -1;
@@ -85,7 +119,6 @@ public class Capsule implements Serializable{
         return "Capsule{" +
                 "timestampEntered=" + timestampEntered +
                 ", timestampLeaving=" + timestampLeaving +
-                ", tokenCustomer=" + Arrays.toString(tokenCustomer) +
                 ", hashBar='" + hashBar + '\'' +
                 ", dagBezoek='" + dagBezoek + '\'' +
                 ", infected='" + infected + '\'' +

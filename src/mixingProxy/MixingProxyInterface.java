@@ -1,5 +1,7 @@
 package mixingProxy;
 
+import registrar.Token;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.InvalidKeyException;
@@ -10,7 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 public interface MixingProxyInterface extends Remote {
     boolean sendCapsule(Capsule capsule) throws RemoteException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException;
 
-    byte[] signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException;
+    String signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException;
 
-    Capsule requestLeaving(byte[] currentToken) throws RemoteException;
+    Capsule requestLeaving(Token currentToken) throws RemoteException;
 }

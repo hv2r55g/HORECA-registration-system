@@ -3,6 +3,7 @@ package registrar;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -13,7 +14,7 @@ public interface RegistrarInterface extends Remote {
 
     List requestMonthlyHash(String bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
 
-    List requestDailyCustomerToken(String phoneNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, SignatureException;
+    List requestDailyCustomerToken(String phoneNumber) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException;
 
     PublicKey getPublicKeyOfTheDay() throws RemoteException;
 
