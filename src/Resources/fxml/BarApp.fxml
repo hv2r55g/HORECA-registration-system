@@ -7,7 +7,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bar.BarGUIController">
    <top>
-      <HBox alignment="CENTER" prefHeight="99.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER" prefHeight="50.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
             <Label prefHeight="17.0" prefWidth="77.0" text="Business nr:" />
             <TextField fx:id="textFieldBusinessNr" onAction="#scanBusinessNr" prefHeight="25.0" prefWidth="225.0" promptText="Please enter a business number" />
@@ -29,15 +29,15 @@
             </HBox>
          </center>
          <top>
-            <TextField fx:id="labelPrint" maxWidth="260.0" minWidth="200.0" prefHeight="25.0" prefWidth="260.0" BorderPane.alignment="CENTER" />
+            <TextField fx:id="labelPrint" maxWidth="595.0" minWidth="200.0" prefHeight="25.0" prefWidth="595.0" BorderPane.alignment="CENTER" />
          </top>
       </BorderPane>
    </bottom>
    <left>
-      <GridPane prefHeight="192.0" prefWidth="274.0" BorderPane.alignment="BOTTOM_CENTER">
+      <GridPane prefHeight="224.0" prefWidth="302.0" BorderPane.alignment="BOTTOM_CENTER">
         <columnConstraints>
-          <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="75.0" />
-          <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="194.0" minWidth="10.0" prefWidth="194.0" />
+          <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="74.0" />
+          <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="210.0" minWidth="10.0" prefWidth="200.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="BOTTOM" vgrow="SOMETIMES" />
@@ -61,6 +61,6 @@
       </GridPane>
    </left>
    <center>
-      <ImageView fx:id="imageViewSign" fitHeight="254.0" fitWidth="328.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+      <ImageView fx:id="imageViewSign" fitHeight="241.0" fitWidth="265.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
    </center>
 </BorderPane>

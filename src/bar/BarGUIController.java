@@ -11,19 +11,14 @@ import registrar.RegistrarInterface;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.util.Base64;
 import java.util.List;
 import java.util.Random;
@@ -55,7 +50,7 @@ public class BarGUIController extends UnicastRemoteObject implements Remote {
 
 
     private String bussinesNumber;
-    private List mothlyHash;
+    private List<String> mothlyNyms;
     private QRCode qrCode;
     private RegistrarInterface registrarInterface;
     private MixingProxyInterface mixingProxyInterface;
@@ -99,47 +94,68 @@ public class BarGUIController extends UnicastRemoteObject implements Remote {
 
 
     @FXML
-    private void requestMonthlyHash() throws RemoteException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
+    private void requestMonthlyHash() throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         //LIJST VAN STRING WORDT TERUG GEGEVEN
-        mothlyHash = registrarInterface.requestMonthlyHash(bussinesNumber);
+        mothlyNyms = registrarInterface.requestMonthlyNyms(bussinesNumber);
+        System.out.println("HEt aantal nyms die men krijgt: " + mothlyNyms.size());
         buttonOpenCatering.setDisable(false);
     }
 
     @FXML
-    private void createQRForToday() throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, RemoteException, SignatureException {
-        //BRON: https://www.novixys.com/blog/hmac-sha256-message-authentication-mac-java/
-        //BRON: https://examples.javacodegeeks.com/core-java/crypto/generate-message-authentication-code-mac/
-
+    private void createQRForToday() throws NoSuchAlgorithmException, InvalidKeyException, IOException, SignatureException {
         //HIER OPNIEUW EEN HASHFUNCTIE MAKEN, MAAR GEBASEERD OP ANDERE ZAKEN
         //QR STELLEN WE HIER GEWOON VOOR DOOR STRING VAN DE 3 PARAMETERS
 
         //DE HASHFUNCTIE IS GEBASEERD OP RANDOM NUMBER
-        Random random = new Random();
-        int maxGetal = 9999;
-        String randomGetal = Integer.toString(random.nextInt(maxGetal));
+        //Random random = new Random();
+        //int maxGetal = 9999;
+        //String randomGetal = Integer.toString(random.nextInt(maxGetal));
+        SecureRandom random = new SecureRandom();
+        byte[] randomBytes = new byte[20];
+        random.nextBytes(randomBytes);
+        String randomGetal = Base64.getEncoder().encodeToString(randomBytes);
+        System.out.println("Dit is de nieuwe random getal: " + randomGetal);
+
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(bos);
+
+        //BYTE ARRAY MAKEN --> RANDOM EN NYM
+        dos.write(randomBytes);
+        //NYM MOET TERUG GeDECODED WORDEN
+        byte[] nym = Base64.getDecoder().decode(mothlyNyms.get(0));
+        dos.write(nym);
+        dos.flush();
+
+        //GAAN HASHEN
+        byte[] hashBar = messageDigest.digest(bos.toByteArray());
+        String hashBarString = Base64.getEncoder().encodeToString(hashBar);
+        System.out.println("Dit is de nieuwe hash: " + hashBarString);
+
+        dos.close();
+        bos.close();
 
         //KEY MAKEN WAAROP DE HASHFUNCTIE GEBASEERD IS
-        byte[] aesKeyData = randomGetal.getBytes();
-        SecretKeySpec keyHashFunction = new SecretKeySpec(aesKeyData, "AES");
+        //byte[] aesKeyData = randomGetal.getBytes();
+        //SecretKeySpec keyHashFunction = new SecretKeySpec(aesKeyData, "AES");
 
         //HASHFUNCTIE INITIALISEREN EN LATEN UITVOEREN
-        //TODO: uitleggen waarom we voor deze gekozen hebben sws op de presentatie
-        String algoritme = "HMACSHA1";
-        Mac mac = Mac.getInstance(algoritme);
-        mac.init(keyHashFunction);
+        //String algoritme = "HMACSHA1";
+        //Mac mac = Mac.getInstance(algoritme);
+        //mac.init(keyHashFunction);
         //TE HASHEN DATA
-        //TODO: hier naar de demo wss niet zomaar eerste hash nemen
-        String teHashenInfo = randomGetal + mothlyHash.get(0);
-        byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
-        byte[] result = mac.doFinal(teHashenInfoInBytes);
-        String QrString = Base64.getEncoder().encodeToString(result);
+        //String teHashenInfo = randomGetal + mothlyNyms.get(0);
+        //byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
+        //byte[] result = mac.doFinal(teHashenInfoInBytes);
+        //String QrString = Base64.getEncoder().encodeToString(result);
         //String resultString = new String(result, StandardCharsets.UTF_8);
         //System.out.println("Hoe ziet zo'n hash voor de QR code eruit: " + resultString);
 
         //NOG DE 3 PARAMETERS OPSLAAN OM IN DE TOEKOMST EEN QR CODE TE MAKEN
-        qrCode = new QRCode(randomGetal,bussinesNumber,QrString);
+        qrCode = new QRCode(randomGetal,bussinesNumber,hashBarString);
         labelRandomInt.setText(randomGetal);
-        labelHashBar.setText(QrString);
+        labelHashBar.setText(hashBarString);
         printQR();
         getLogoOfTheDay();
 

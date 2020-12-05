@@ -171,14 +171,14 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         columnRandomIntBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.2));
 
         TableColumn columnBusinessNumberBar = new TableColumn("Business number");
-        columnBusinessNumberBar.setMinWidth(200);
+        columnBusinessNumberBar.setMinWidth(100);
         columnBusinessNumberBar.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("businessNumberBar"));
-        columnBusinessNumberBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.2));
+        columnBusinessNumberBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.1));
 
         TableColumn columnHashBar = new TableColumn("Hash bar");
         columnHashBar.setMinWidth(200);
         columnHashBar.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("hashBar"));
-        columnHashBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.2));
+        columnHashBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.3));
 
         tableViewBezoeken.setItems(bezoeken);
         tableViewBezoeken.getColumns().addAll(columnTimeEntered,columnTimeLeaving,columnRandomIntBar,columnBusinessNumberBar,columnHashBar);
@@ -256,13 +256,17 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     }
 
     @FXML
-    private void verlaatBar() throws RemoteException {
+    private void verlaatBar() throws RemoteException, FileNotFoundException {
         //LEAVING TIME IN CAPSULE GAAN FIXEN, TERGELIJK NOG KEER DAT OBECT TERUGSTUREN VOOR ONS BEZOEK AAN TE MAKEN
         Capsule currentCapsule = mixingProxyInterface.requestLeaving(currentToken);
         //BEZOEK LOKAAL OPSLAAN
         Bezoek bezoek = new Bezoek(currentCapsule.getTimestampEntered(),currentCapsule.getTimestampLeaving(),QRcodeCurrentBar.getRandomGetal(),QRcodeCurrentBar.getBusinessNumber(),QRcodeCurrentBar.getHashBar());
         bezoeken.add(bezoek);   //hoeft niet mer perse
         sendToLocalDatabase(bezoek);
+        labelHashBar.setText("");
+        labelBusinessNumber.setText("");
+        labelRandomInt.setText("");
+        imageViewSign.setImage(new Image(new FileInputStream(new File("src/Resources/Icons/default.jpg"))));
     }
 
     private void requestTokens() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {

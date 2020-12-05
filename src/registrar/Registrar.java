@@ -8,12 +8,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.*;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import com.google.common.collect.ArrayListMultimap;
@@ -94,23 +92,39 @@ public class Registrar implements RegistrarInterface {
         return new SecretKeySpec(aesKeyData, "AES");
     }
 
-    private String createHash(SecretKeySpec currentKey, String bussinesNumber, String day) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
-        //BRON: https://www.novixys.com/blog/hmac-sha256-message-authentication-mac-java/
-        //BRON: https://examples.javacodegeeks.com/core-java/crypto/generate-message-authentication-code-mac/
+    private String createNym(SecretKeySpec currentKey, String bussinesNumber, String day) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(bos);
+
+        dos.write(currentKey.getEncoded());
+        dos.write(bussinesNumber.getBytes());
+        dos.write(day.getBytes());
+        dos.flush();
+
+        //GAAN HASHEN
+        byte[] nym = messageDigest.digest(bos.toByteArray());
+        dos.close();
+        bos.close();
+
+        //NOG NAAR STRING OVERZETTEN
+        return Base64.getEncoder().encodeToString(nym);
+
 
         //DE HASHFUNCTIE IS GEBASEERD OP DE DAILY KEY
-        //TODO: uitleggen waarom we voor deze gekozen hebben sws op de presentatie
-        String algoritme = "HMACSHA1";
-        Mac mac = Mac.getInstance(algoritme);
-        mac.init(currentKey);
+        //TODO: Probleem was dat de hash niet geinversed engineerd kan worden
+        //String algoritme = "HMACSHA1";
+        //Mac mac = Mac.getInstance(algoritme);
+        //mac.init(currentKey);
         //TE HASHEN DATA
-        String encodedKey = Base64.getEncoder().encodeToString(currentKey.getEncoded());
+        //String encodedKey = Base64.getEncoder().encodeToString(currentKey.getEncoded());
         //System.out.println("Zo ziet de encoded key eruit: " + encodedKey);
-        String teHashenInfo = encodedKey + bussinesNumber + day;
-        byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
-        byte[] result = mac.doFinal(teHashenInfoInBytes);
-        String resultString = Base64.getEncoder().encodeToString(result);
-        return resultString;
+        //String teHashenInfo = encodedKey + bussinesNumber + day;
+        //byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
+        //byte[] result = mac.doFinal(teHashenInfoInBytes);
+        //String resultString = Base64.getEncoder().encodeToString(result);
+        //return resultString;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------//
@@ -203,10 +217,10 @@ public class Registrar implements RegistrarInterface {
     }
 
     @Override
-    public List<String> requestMonthlyHash(String bussinesNumber) throws RemoteException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
-        System.out.println("Create mothly keys for: " + bussinesNumber);
+    public List<String> requestMonthlyNyms(String bussinesNumber) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+        System.out.println("Create mothly nyms for: " + bussinesNumber);
         int aantalDagen = 10;
-        List<String> monthlyHash = new ArrayList<>();
+        List<String> monthlyNyms = new ArrayList<>();
 
         Date date = new Date();
         SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
@@ -216,13 +230,14 @@ public class Registrar implements RegistrarInterface {
 
         for (int i = 0; i < aantalDagen; i++) {
             SecretKeySpec key;
-            String hash;
+            String nym;
             if (i == 0){
                 String currentDate = df.format(date);
                 //System.out.println(currentDate);
                 key = generateDailyKey(bussinesNumber, currentDate);
-                hash = createHash(key,bussinesNumber,currentDate);
-                mappingDayNyms.put(currentDate,hash);
+                nym = createNym(key,bussinesNumber,currentDate);
+                System.out.println("De key is: " + key + "\t De nym is: " + nym);
+                mappingDayNyms.put(currentDate,nym);
             } else {
                 //1 DAG AAN DE CALENDAR TOEVOEGEN
                 c1.add(Calendar.DAY_OF_YEAR, 1);
@@ -230,13 +245,14 @@ public class Registrar implements RegistrarInterface {
                 String dueDate = df.format(nextDate);
                 //System.out.println(dueDate);
                 key = generateDailyKey(bussinesNumber, dueDate);
-                hash = createHash(key,bussinesNumber,dueDate);
-                mappingDayNyms.put(dueDate,hash);
+                nym = createNym(key,bussinesNumber,dueDate);
+                System.out.println("De key is: " + key + "\t De nym is: " + nym);
+                mappingDayNyms.put(dueDate,nym);
             }
             //NIET VERGETEN TOE TE VOEGEN AAN DE ARRAY
-            monthlyHash.add(hash);
+            monthlyNyms.add(nym);
         }
-        return monthlyHash;
+        return monthlyNyms;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------//
