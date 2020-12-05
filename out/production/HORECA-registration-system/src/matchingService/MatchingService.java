@@ -102,7 +102,16 @@ public class MatchingService implements MatchingServiceInterface, Remote{
 
     //deze methode is er om vanuit de customer te checken of je in contact bent gekomen met een besmet persoon
     @Override
-    public boolean requestInfectedOrNot(List<Capsule> capsules) throws RemoteException {
+    public boolean requestInfectedOrNot(List<Bezoek> bezoekenLaatsteZevenDagen) throws RemoteException {
+
+        for (Bezoek bezoek : bezoekenLaatsteZevenDagen){
+            for (Capsule capsule : infectedCapsules){
+                if (capsule.isErOverlap(bezoek)){
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 

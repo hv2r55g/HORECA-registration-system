@@ -76,6 +76,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private Map<Character,String> mappingIcons;
     private RegistrarInterface registrarInterface;
     private MixingProxyInterface mixingProxyInterface;
+    private MatchingServiceInterface matchingServiceInterface;
     //------------------------------------------------------------------------------------------------------------------------------------------//
 
     public CustomerGUIController() throws RemoteException {

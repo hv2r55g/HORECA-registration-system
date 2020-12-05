@@ -78,10 +78,6 @@ public class Capsule implements Serializable{
         return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampEntered));
     }
 
-    public byte[] getTokenCustomer() {
-        return tokenCustomer;
-    }
-
     public String getTimestampLeavingString() {
         return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampLeaving));
     }

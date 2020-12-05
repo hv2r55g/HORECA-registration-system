@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import matchingService.MatchingServiceInterface;
 import javafx.util.Duration;
 import mixingProxy.Capsule;
 import mixingProxy.MixingProxyInterface;
@@ -75,6 +76,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private Map<Character,String> mappingIcons;
     private RegistrarInterface registrarInterface;
     private MixingProxyInterface mixingProxyInterface;
+    private MatchingServiceInterface matchingServiceInterface;
     //------------------------------------------------------------------------------------------------------------------------------------------//
 
     public CustomerGUIController() throws RemoteException {
@@ -100,6 +102,11 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         return bezoekenAfgelopenWeek;
     }
 
+    //Deze methode is het resultaat dat de knop COVID moet teruggeven
+    private boolean getInContactGekomenMetBesmetPersoon() throws RemoteException {
+        return matchingServiceInterface.requestInfectedOrNot(bezoekenLaatsteZevenDagen);
+    }
+
     private ObservableList<Bezoek> leesLocalDatabase(){
         ObservableList<Bezoek> result = FXCollections.observableArrayList();
         String path = "src/DoktersBestanden/";
@@ -111,7 +118,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
                 String firstLine = sc.nextLine();
                 while (sc.hasNextLine()){
                     String[] bezoek = sc.nextLine().split(";");
-                    result.add(new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4]));
+                    result.add(new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4].getBytes()));
                 }
             } else {
                 System.out.println("DB is gecleared geweest");
@@ -165,6 +172,14 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
             servicename = "MixingProxyService";
             Naming.rebind("rmi://" + hostname + "/" + clientService, this);
             mixingProxyInterface = (MixingProxyInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
+
+            //CONNECTEN MET MATCHING SERVICE
+            clientService = "MatchingServiceListening";
+            servicename = "MatchingService";
+            Naming.rebind("rmi://" + hostname + "/" + clientService, this);
+            matchingServiceInterface = (MatchingServiceInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
+
+
         } catch (Exception e){
             e.printStackTrace();
         }
