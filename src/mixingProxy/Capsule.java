@@ -1,5 +1,7 @@
 package mixingProxy;
 
+import customer.Bezoek;
+
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
@@ -70,9 +72,9 @@ public class Capsule implements Serializable{
         this.infected = false;
     }
 
-    public boolean isErOverlap(Capsule infected){
+    public boolean isErOverlap(Bezoek customer){
         //BEREKEN OF ER OVERLAP IS WAARBIJ
-        if (timestampLeaving > infected.getTimestampEntered() && infected.getTimestampLeaving() > timestampEntered){
+        if (timestampLeaving > customer.getTimestampEntered() && customer.getTimestampLeaving() > timestampEntered){
             return true;
         }
         return false;

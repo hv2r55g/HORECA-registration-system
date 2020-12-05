@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import matchingService.MatchingServiceInterface;
 import mixingProxy.Capsule;
 import mixingProxy.MixingProxyInterface;
 import registrar.RegistrarInterface;
@@ -71,6 +72,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
     private Map<String,String> mappingIcons;
     private RegistrarInterface registrarInterface;
     private MixingProxyInterface mixingProxyInterface;
+    private MatchingServiceInterface matchingServiceInterface;
     //------------------------------------------------------------------------------------------------------------------------------------------//
 
     public CustomerGUIController() throws RemoteException {
@@ -94,6 +96,11 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
             }
         }
         return bezoekenAfgelopenWeek;
+    }
+
+    //Deze methode is het resultaat dat de knop COVID moet teruggeven
+    private boolean getInContactGekomenMetBesmetPersoon() throws RemoteException {
+        return matchingServiceInterface.requestInfectedOrNot(bezoekenLaatsteZevenDagen);
     }
 
     private ObservableList<Bezoek> leesLocalDatabase(){
@@ -155,6 +162,13 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
             servicename = "MixingProxyService";
             Naming.rebind("rmi://" + hostname + "/" + clientService, this);
             mixingProxyInterface = (MixingProxyInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
+
+            //CONNECTEN MET MATCHING SERVICE
+            clientService = "MatchingServiceListening";
+            servicename = "MatchingService";
+            Naming.rebind("rmi://" + hostname + "/" + clientService, this);
+            matchingServiceInterface = (MatchingServiceInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
+
 
         } catch (Exception e){
             e.printStackTrace();
