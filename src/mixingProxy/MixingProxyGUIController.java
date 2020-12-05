@@ -31,8 +31,6 @@ public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
     @FXML
     Button buttonFlush;
 
-
-
     private ObservableList<Capsule> capsules;
     private PublicKey publicKeyToday;
     private KeyPair keyPairOfTheDay;

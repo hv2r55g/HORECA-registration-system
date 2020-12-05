@@ -118,7 +118,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
                 String firstLine = sc.nextLine();
                 while (sc.hasNextLine()){
                     String[] bezoek = sc.nextLine().split(";");
-                    result.add(new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4].getBytes()));
+                    result.add(new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4]));
                 }
             } else {
                 System.out.println("DB is gecleared geweest");
@@ -175,7 +175,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
 
             //CONNECTEN MET MATCHING SERVICE
             clientService = "MatchingServiceListening";
-            servicename = "MatchingService";
+            servicename = "MatchingServiceService";
             Naming.rebind("rmi://" + hostname + "/" + clientService, this);
             matchingServiceInterface = (MatchingServiceInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
 
