@@ -23,7 +23,8 @@ public class Bezoek implements Serializable {
         this.randomIntBar = randomIntBar;
         this.businessNumberBar = businessNumberBar;
         this.capsule = new Capsule(TE,TL,new Token(tokenSign),hashBar);
-        this.tokenSign = capsule.getTokenSign();
+        //this.tokenSign = capsule.getTokenSign();
+        this.tokenSign = capsule.getTokenCustomer().getSignature();
         this.hashBar = capsule.getHashBar();
     }
 
@@ -78,4 +79,16 @@ public class Bezoek implements Serializable {
         this.hashBar = capsule.getHashBar();
     }
 
+    @Override
+    public String toString() {
+        return "Bezoek{" +
+                "randomIntBar='" + randomIntBar + '\'' +
+                ", businessNumberBar='" + businessNumberBar + '\'' +
+                ", capsule=" + capsule +
+                ", tokenSign='" + tokenSign + '\'' +
+                ", timestampEnteredString='" + timestampEnteredString + '\'' +
+                ", timestampLeavingString='" + timestampLeavingString + '\'' +
+                ", hashBar='" + hashBar + '\'' +
+                '}';
+    }
 }

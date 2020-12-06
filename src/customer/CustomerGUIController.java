@@ -101,11 +101,6 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         return bezoekenAfgelopenWeek;
     }
 
-    //Deze methode is het resultaat dat de knop COVID moet teruggeven
-    private boolean getInContactGekomenMetBesmetPersoon() throws RemoteException {
-        return matchingServiceInterface.requestInfectedOrNot(bezoekenLaatsteZevenDagen);
-    }
-
     private ObservableList<Bezoek> leesLocalDatabase(){
         ObservableList<Bezoek> result = FXCollections.observableArrayList();
         String path = "src/DoktersBestanden/";
@@ -117,7 +112,9 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
                 String firstLine = sc.nextLine();
                 while (sc.hasNextLine()){
                     String[] bezoek = sc.nextLine().split(";");
-                    result.add(new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4],bezoek[5]));
+                    Bezoek nieuwBezoek = new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4],bezoek[5]);
+                    System.out.println(nieuwBezoek);
+                    result.add(nieuwBezoek);
                 }
             } else {
                 System.out.println("DB is gecleared geweest");

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="doctor.DoctorGUIController">
+   <top>
+      <HBox alignment="CENTER_LEFT" prefHeight="51.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label prefHeight="17.0" prefWidth="143.0" text="Voer telefoonnr patient in: ">
+               <HBox.margin>
+                  <Insets left="20.0" />
+               </HBox.margin></Label>
+            <TextField fx:id="textFieldTel" prefHeight="25.0" prefWidth="246.0" />
+            <Button fx:id="buttonGetLogs" mnemonicParsing="false" onAction="#leesBezoekenPatientIn" text="Get logs" />
+            <Button fx:id="buttonToMatching" disable="true" mnemonicParsing="false" onAction="#stuurNaarMatching" text="To matching" />
+         </children>
+      </HBox>
+   </top>
+   <center>
+      <TableView fx:id="tableViewLogs" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>

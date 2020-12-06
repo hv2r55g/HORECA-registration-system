@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="matchingService.MatchingServiceGUIController">
+   <items>
+      <VBox prefHeight="200.0" prefWidth="100.0">
+         <children>
+            <HBox alignment="CENTER" prefHeight="34.0" prefWidth="598.0">
+               <children>
+                  <Label prefHeight="17.0" prefWidth="58.0" text="Capsules" />
+                  <Button fx:id="buttonUninformed" mnemonicParsing="false" onAction="#sendUninformedCapsules" text="Send Uninformed Capsules" />
+               </children>
+            </HBox>
+            <TableView fx:id="tableViewCapsules" />
+         </children>
+      </VBox>
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+         <children>
+            <Label text="Logs laatste zieke customer" />
+            <TableView fx:id="tableViewLogs" />
+         </children>
+      </VBox>
+   </items>
+</SplitPane>

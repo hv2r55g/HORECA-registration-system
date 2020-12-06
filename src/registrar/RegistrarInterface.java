@@ -2,6 +2,7 @@ package registrar;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import mixingProxy.Capsule;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -23,6 +24,8 @@ public interface RegistrarInterface extends Remote {
     String getDagVanVandaag() throws RemoteException;
 
     ListMultimap<String, String> getMappingDayNyms(int incubatieTijd) throws RemoteException;
+
+    void sendUninformedCustomers(List<Capsule> neededCapsules)throws RemoteException;
 
 }
 

@@ -23,6 +23,8 @@ public class CriticalTuple implements Serializable {
     public long getTimeLeft() {
         return timeLeft;
     }
+    
+    public CriticalTuple(){}
 
     public CriticalTuple(String hashBar, long timeEntered, long timeLeft) {
         this.hashBar = hashBar;

@@ -1,13 +1,11 @@
 package registrar;
 
 import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.rmi.Naming;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -17,12 +15,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import matchingService.MatchingService;
-import matchingService.MatchingServiceInterface;
 import mixingProxy.Capsule;
 
 public class Registrar implements RegistrarInterface, Remote {
-    private MatchingServiceInterface matchingServiceInterface;
     private int aantalTokensPerCustomer;
     private String dagVanVandaag;
     //private Map<String,List> mappingHashBars;   //Key: Datum; Values: List van nyms die gemaakt zijn die dag
@@ -65,15 +60,10 @@ public class Registrar implements RegistrarInterface, Remote {
         String clientService = "MatchingServiceListening";
         String servicenameMatchingServer = "MatchingServiceService";
         try {
-            MatchingService matchingService = new MatchingService();
             Registrar obj = new Registrar();
             RegistrarInterface stub = (RegistrarInterface) UnicastRemoteObject.exportObject(obj, 0);
             Naming.rebind("rmi://" + hostname + "/" + servicename, stub);
             System.out.println("RMI Server successful started");
-
-            //CONNECTEN MET MATICHING SERVICE
-            Naming.rebind("rmi://" + hostname + "/" + clientService, obj);
-            obj.matchingServiceInterface = (MatchingServiceInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
 
         } catch (Exception e) {
             System.out.println(e);
@@ -268,15 +258,9 @@ public class Registrar implements RegistrarInterface, Remote {
         return monthlyNyms;
     }
 
-    public List<Capsule> getuninformedCapsules() throws RemoteException {
-        List<Capsule> uninformedCapsules = matchingServiceInterface.uninformedCapsules();
 
-        return uninformedCapsules;
-    }
-
-    public void sentUninformedCustomers() throws RemoteException {
-        List<Capsule> uninformedCapsules = getuninformedCapsules();
-
+    @Override
+    public void sendUninformedCustomers(List<Capsule> uninformedCapsules) {
         for (Capsule capsule : uninformedCapsules){
             for (String key : mappingTokens.keySet()){
                 for (Token token : mappingTokens.get(key)){
@@ -286,9 +270,8 @@ public class Registrar implements RegistrarInterface, Remote {
                 }
             }
         }
-
-
     }
+
 
     //------------------------------------------------------------------------------------------------------------------------------------------//
 }

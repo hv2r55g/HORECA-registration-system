@@ -29,7 +29,7 @@ import java.util.*;
 import java.rmi.RemoteException;
 
 
-public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
+public class MixingProxyGUIController extends UnicastRemoteObject  implements MixingProxyInterface, Remote {
     @FXML
     TableView tableViewCapsules;
 
@@ -44,7 +44,7 @@ public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
     private RegistrarInterface registrarInterface;
     private MatchingServiceInterface matchingServiceInterface;
 
-    public MixingProxyGUIController() { super(); }
+    public MixingProxyGUIController() throws RemoteException { super(); }
 
     public void initController() throws RemoteException {
         initConnecties();
@@ -139,8 +139,7 @@ public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
         String servicenameMatchingServer = "MatchingServiceService";
 
         try {
-            MixingProxyInterface stub = (MixingProxyInterface) UnicastRemoteObject.exportObject(this, 0);
-            Naming.rebind("rmi://" + hostname + "/" + servicename, stub);
+            Naming.rebind("rmi://" + hostname + "/" + servicename, this);
             System.out.println("RMI Server Mixing Proxy successful started");
 
             //CONNECTEN MET REGISTRAR

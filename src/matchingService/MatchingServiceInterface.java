@@ -12,13 +12,7 @@ public interface MatchingServiceInterface extends Remote {
 
     void addCapsules(List<Capsule> capsules) throws RemoteException;
 
-    boolean requestInfectedOrNot(List<Bezoek> bezoekenLaatsteZevenDagen) throws RemoteException;
-
-    void setInfectedCapsules(List<Bezoek> bezoekenPatient) throws RemoteException;
-
     void receiveInfectedBezoeken(List<Bezoek> infectedBezoeken) throws RemoteException;
 
-    List<CriticalTuple> requestCriticalTuples() throws RemoteException;
-
-    List<Capsule> uninformedCapsules() throws  RemoteException;
+    List requestCriticalTuples() throws RemoteException;
 }
