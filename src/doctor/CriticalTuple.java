@@ -29,4 +29,13 @@ public class CriticalTuple implements Serializable {
         this.timeEntered = timeEntered;
         this.timeLeft = timeLeft;
     }
+
+    @Override
+    public String toString() {
+        return "CriticalTuple{" +
+                "hashBar='" + hashBar + '\'' +
+                ", timeEntered=" + timeEntered +
+                ", timeLeft=" + timeLeft +
+                '}';
+    }
 }

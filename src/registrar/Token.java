@@ -7,6 +7,10 @@ public class Token implements Serializable {
     private String signature;
     private String datumInfo;
 
+    public Token(String tokenSign) {
+        this.signature = tokenSign;
+    }
+
     public String getSignature() {
         return signature;
     }

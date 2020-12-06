@@ -1,5 +1,8 @@
 package customer;
 
+import mixingProxy.Capsule;
+import registrar.Token;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -7,21 +10,37 @@ import java.util.Date;
 
 public class Bezoek implements Serializable {
     private static final long serialVersionUID = 20120732225400L;
-    private long timestampEntered;
-    private String timestampEnteredString;
-    private long timestampLeaving;
-    private String timestampLeavingString;
+
     private String randomIntBar;
     private String businessNumberBar;
+    private Capsule capsule;
+    private String tokenSign;
+    private String timestampEnteredString;
+    private String timestampLeavingString;
     private String hashBar;
-    private boolean infected;
 
-    public long getTimestampEntered() {
-        return timestampEntered;
+    public Bezoek(long TE, long TL, String tokenSign, String randomIntBar, String businessNumberBar, String hashBar) {
+        this.randomIntBar = randomIntBar;
+        this.businessNumberBar = businessNumberBar;
+        this.capsule = new Capsule(TE,TL,new Token(tokenSign),hashBar);
+        this.tokenSign = capsule.getTokenSign();
+        this.hashBar = capsule.getHashBar();
     }
 
-    public long getTimestampLeaving() {
-        return timestampLeaving;
+    public void setRandomIntBar(String randomIntBar) {
+        this.randomIntBar = randomIntBar;
+    }
+
+    public void setBusinessNumberBar(String businessNumberBar) {
+        this.businessNumberBar = businessNumberBar;
+    }
+
+    public Capsule getCapsule() {
+        return capsule;
+    }
+
+    public void setCapsule(Capsule capsule) {
+        this.capsule = capsule;
     }
 
     public String getRandomIntBar() {
@@ -32,48 +51,31 @@ public class Bezoek implements Serializable {
         return businessNumberBar;
     }
 
-    public String getHashBar() {
-        return hashBar;
+    public String getTokenSign() {
+        return tokenSign;
     }
 
     public String getTimestampEnteredString() {
-        return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampEntered));
+        return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(capsule.getTimestampEntered()));
     }
 
 
     public String getTimestampLeavingString() {
-        return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(timestampLeaving));
+        return new SimpleDateFormat("ddMMMMyyyy HH:mm").format(new Date(capsule.getTimestampLeaving()));
     }
 
-    public boolean isInfected() {
-        return infected;
-    }
-
-    public void setInfected(boolean infected) {
-        this.infected = infected;
+    public String getHashBar() {
+        return hashBar;
     }
 
     public Bezoek(){}
     
-    public Bezoek(long timestampEntered,long timestampLeaving,String randomIntBar, String businessNumberBar, String hashBar) {
-        this.timestampEntered = timestampEntered;
-        this.timestampLeaving = timestampLeaving;
+    public Bezoek(String randomIntBar, String businessNumberBar,Capsule capsule) {
         this.randomIntBar = randomIntBar;
         this.businessNumberBar = businessNumberBar;
-        this.hashBar = hashBar;
-        this.infected = false;
+        this.capsule = capsule;
+        this.tokenSign = capsule.getTokenSign();
+        this.hashBar = capsule.getHashBar();
     }
 
-    @Override
-    public String toString() {
-        return "Bezoek{" +
-                "timestampEntered=" + timestampEntered +
-                ", timestampEnteredString='" + timestampEnteredString + '\'' +
-                ", timestampLeaving=" + timestampLeaving +
-                ", timestampLeavingString='" + timestampLeavingString + '\'' +
-                ", randomIntBar='" + randomIntBar + '\'' +
-                ", businessNumberBar='" + businessNumberBar + '\'' +
-                ", hashBar=" + hashBar +
-                '}';
-    }
 }

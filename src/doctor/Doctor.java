@@ -23,6 +23,7 @@ public class Doctor  extends UnicastRemoteObject implements Remote {
 
     public Doctor() throws RemoteException {
         super();
+        this.bezoekenPatient = new ArrayList<>();
     }
 
     public String getCurrentPatient() {
@@ -54,7 +55,7 @@ public class Doctor  extends UnicastRemoteObject implements Remote {
         //System.out.println("Wie bent u?");
         //Scanner sc = new Scanner(System.in);
         //String telefoonNrPatient = sc.nextLine();
-        String patient = "123456789";
+        String patient = "0001";
 
         currentDoctor.setCurrentPatient(patient);
 
@@ -67,12 +68,13 @@ public class Doctor  extends UnicastRemoteObject implements Remote {
     }
 
     private void stuurNaarMatching() throws RemoteException {
+        System.out.println("size Bezoeken patient: " + bezoekenPatient.size());
         matchingServiceInterface.receiveInfectedBezoeken(bezoekenPatient);
     }
 
     public void setInfected(List<Bezoek> bezoekenPatient){
         for (Bezoek bezoek : bezoekenPatient){
-            bezoek.setInfected(true);
+            bezoek.getCapsule().setInfected(true);
         }
     }
 
@@ -89,7 +91,7 @@ public class Doctor  extends UnicastRemoteObject implements Remote {
             while (sc.hasNextLine()){
                 String currentBezoekString = sc.nextLine();
                 String[] gegevens = currentBezoekString.split(";");
-                Bezoek currentBezoek = new Bezoek(Long.parseLong(gegevens[0]),Long.parseLong(gegevens[1]),gegevens[2],gegevens[3],gegevens[4]);
+                Bezoek currentBezoek = new Bezoek(Long.parseLong(gegevens[0]),Long.parseLong(gegevens[1]),gegevens[2],gegevens[3],gegevens[4],gegevens[5]);
                 bezoekenPatient.add(currentBezoek);
             }
             System.out.println("Patient: " + currentPatient + " heeft de afgelopen tijd " + bezoekenPatient.size() + " keer een bezoek gebracht aan een bar of restaurant.");

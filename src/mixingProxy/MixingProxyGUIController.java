@@ -1,6 +1,7 @@
 package mixingProxy;
 
 import customer.Bezoek;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -307,6 +308,11 @@ public class MixingProxyGUIController  implements MixingProxyInterface, Remote {
 
         //NORMAAL ZAL HIJ ALTIJD CAPSULE VINDEN
         return null;
+    }
+
+    @Override
+    public void sendACK(List<Capsule> ACKs) throws RemoteException {
+        capsules.addAll(ACKs);
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------//

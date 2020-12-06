@@ -94,7 +94,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         long timeSevenDaysAgo = currentTime - (7 * DAY_IN_MS);
 
         for (Bezoek bezoek : bezoeken){
-            if (timeSevenDaysAgo <= bezoek.getTimestampEntered()){
+            if (timeSevenDaysAgo <= bezoek.getCapsule().getTimestampEntered()){
                 bezoekenAfgelopenWeek.add(bezoek);
             }
         }
@@ -117,7 +117,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
                 String firstLine = sc.nextLine();
                 while (sc.hasNextLine()){
                     String[] bezoek = sc.nextLine().split(";");
-                    result.add(new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4]));
+                    result.add(new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4],bezoek[5]));
                 }
             } else {
                 System.out.println("DB is gecleared geweest");
@@ -159,30 +159,35 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         TableColumn columnTimeEntered = new TableColumn("Time entered");
         columnTimeEntered.setMinWidth(200);
         columnTimeEntered.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("timestampEnteredString"));
-        columnTimeEntered.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.2));
+        columnTimeEntered.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(1.0/6.0));
 
         TableColumn columnTimeLeaving = new TableColumn("Time Left");
         columnTimeLeaving.setMinWidth(200);
         columnTimeLeaving.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("timestampLeavingString"));
-        columnTimeLeaving.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.2));
+        columnTimeLeaving.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(1.0/6.0));
+
+        TableColumn columnToken = new TableColumn("Token sign");
+        columnToken.setMinWidth(200);
+        columnToken.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("tokenSign"));
+        columnToken.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(1.0/6.0));
 
         TableColumn columnRandomIntBar = new TableColumn("Random int bar");
         columnRandomIntBar.setMinWidth(200);
         columnRandomIntBar.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("randomIntBar"));
-        columnRandomIntBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.2));
+        columnRandomIntBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(1.0/6.0));
 
         TableColumn columnBusinessNumberBar = new TableColumn("Business number");
         columnBusinessNumberBar.setMinWidth(100);
         columnBusinessNumberBar.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("businessNumberBar"));
-        columnBusinessNumberBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.1));
+        columnBusinessNumberBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(1.0/6.0));
 
         TableColumn columnHashBar = new TableColumn("Hash bar");
         columnHashBar.setMinWidth(200);
         columnHashBar.setCellValueFactory(new PropertyValueFactory<Bezoek,String>("hashBar"));
-        columnHashBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(0.3));
+        columnHashBar.prefWidthProperty().bind(tableViewBezoeken.widthProperty().multiply(1.0/6.0));
 
         tableViewBezoeken.setItems(bezoeken);
-        tableViewBezoeken.getColumns().addAll(columnTimeEntered,columnTimeLeaving,columnRandomIntBar,columnBusinessNumberBar,columnHashBar);
+        tableViewBezoeken.getColumns().addAll(columnTimeEntered,columnTimeLeaving,columnToken,columnRandomIntBar,columnBusinessNumberBar,columnHashBar);
     }
 
     public void initController(String telefoonr) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
@@ -261,7 +266,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         //LEAVING TIME IN CAPSULE GAAN FIXEN, TERGELIJK NOG KEER DAT OBECT TERUGSTUREN VOOR ONS BEZOEK AAN TE MAKEN
         Capsule currentCapsule = mixingProxyInterface.requestLeaving(currentToken);
         //BEZOEK LOKAAL OPSLAAN
-        Bezoek bezoek = new Bezoek(currentCapsule.getTimestampEntered(),currentCapsule.getTimestampLeaving(),QRcodeCurrentBar.getRandomGetal(),QRcodeCurrentBar.getBusinessNumber(),QRcodeCurrentBar.getHashBar());
+        Bezoek bezoek = new Bezoek(QRcodeCurrentBar.getRandomGetal(),QRcodeCurrentBar.getBusinessNumber(),currentCapsule);
         bezoeken.add(bezoek);   //hoeft niet mer perse
         sendToLocalDatabase(bezoek);
         labelHashBar.setText("");
@@ -272,33 +277,35 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
 
     @FXML
     private void amIInfected() throws RemoteException {
+        System.out.println("amIInfected knop pushed");
         //STAP 1: CRITICAL TUPLES OPHALEN
         List<CriticalTuple> criticalTuples = matchingServiceInterface.requestCriticalTuples();
+        List<Capsule> geinfecteerdeCapsules = new ArrayList<>();
 
-
+        System.out.println("De size van critical tuples: " + criticalTuples.size());
         for (CriticalTuple currentCriticalTuple: criticalTuples){
             //STAP 2: KIJKEN OF ER OVERLAP IS TUSSEN DE TUPLES EN ONZE BEZOEKEN
             //BEZOEKEN OPHALEN DIE GLEIJKE HASH HEBBEN
             List<Bezoek> bezoekenUitInfectedBar = new ArrayList<>();
             for (Bezoek bezoek: bezoeken){
-                if (bezoek.getHashBar().equals(currentCriticalTuple.getHashBar())){
+                if (bezoek.getCapsule().getHashBar().equals(currentCriticalTuple.getHashBar())){
                     bezoekenUitInfectedBar.add(bezoek);
                 }
             }
 
             //STAP 3: KIJKEN WELKE BEZOEKEN ER OVERLAP IS, BEST METHODE IS OVERLAP MAKEN. BIJ CAPSULE HAD IK DAT AL GEMAAKT MAAR MOET DAAR NIET STAAN
-            List<Capsule> geinfecteerdeCapsules = new ArrayList<>();
-            for (Bezoek bezoek: bezoekenUitInfectedBar){
-                //if er overlap is
-                    // nieuwe capsule maken met dezelfde token en gegevens en toevoegen aan de geinfecteerdeCap, wanneer matching een duplicatie ontvangt moet hij dan geinformeerd op true zetten
-                //else
-                    //User safe, nothing happens
+            if (!bezoekenUitInfectedBar.isEmpty()){
+                for (Bezoek bezoek: bezoekenUitInfectedBar){
+                    if (bezoek.getCapsule().isErOverlap(currentCriticalTuple)){
+                        System.out.println("Dit is de infected token: " + bezoek.getCapsule().getTokenCustomer().getSignature());
+                        geinfecteerdeCapsules.add(bezoek.getCapsule());
+                    }
+                }
             }
-
-            //STAP 4: lIJST VAN GEINFECTEERDE DOORSTUREN NAAR MIXING, MISSCHIEN VOOR DE DUIDELIJKHEID NIEUWE INTERFACE METHODE
-
-
         }
+
+        //STAP 4: lIJST VAN GEINFECTEERDE DOORSTUREN NAAR MIXING, MISSCHIEN VOOR DE DUIDELIJKHEID NIEUWE INTERFACE METHODE
+        mixingProxyInterface.sendACK(geinfecteerdeCapsules);
     }
 
     private void requestTokens() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
@@ -318,13 +325,13 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
 
             if(!sc.hasNextLine()) {
                 System.out.println("File bestaat nog niet");
-                bw.append("Timestamp entering;Timestamp leaving;Random number bar;Bussiness number bar;Hash bar");
+                bw.append("Timestamp entering;Timestamp leaving;Token sign;Random number bar;Bussiness number bar;Hash bar");
                 bw.newLine();
-                bw.append(bezoek.getTimestampEntered() + ";" + bezoek.getTimestampLeaving()+ ";" + bezoek.getRandomIntBar()+ ";" + bezoek.getBusinessNumberBar()+ ";" + bezoek.getHashBar());
+                bw.append(bezoek.getCapsule().getTimestampEntered() + ";" + bezoek.getCapsule().getTimestampLeaving()+ ";"+ bezoek.getCapsule().getTokenCustomer().getSignature() + ";" + bezoek.getRandomIntBar()+ ";" + bezoek.getBusinessNumberBar()+ ";" + bezoek.getCapsule().getHashBar());
                 bw.newLine();
             } else {
                 System.out.println("File bestaat wel al");
-                bw.append(bezoek.getTimestampEntered() + ";" + bezoek.getTimestampLeaving()+ ";" + bezoek.getRandomIntBar()+ ";" + bezoek.getBusinessNumberBar()+ ";" + bezoek.getHashBar());
+                bw.append(bezoek.getCapsule().getTimestampEntered() + ";" + bezoek.getCapsule().getTimestampLeaving()+ ";"+ bezoek.getCapsule().getTokenCustomer().getSignature() + ";" + bezoek.getRandomIntBar()+ ";" + bezoek.getBusinessNumberBar()+ ";" + bezoek.getCapsule().getHashBar());
                 bw.newLine();
             }
             sc.close();

@@ -2,6 +2,7 @@ package mixingProxy;
 
 import customer.Bezoek;
 
+import doctor.CriticalTuple;
 import registrar.Token;
 
 import java.io.Serializable;
@@ -26,6 +27,13 @@ public class Capsule implements Serializable{
     //VOOR GUI
     private String tokenSign;
     private String tokenData;
+
+    public Capsule(long te, long tl, Token token, String hashBar) {
+        this.timestampEntered = te;
+        this.timestampLeaving = tl;
+        this.tokenCustomer = token;
+        this.hashBar = hashBar;
+    }
 
     public long getTimestampEntered() {
         return timestampEntered;
@@ -90,6 +98,16 @@ public class Capsule implements Serializable{
     public String getTokenData() {
         return tokenData;
     }
+    
+    
+
+    public boolean isGeinformeerd() {
+        return geinformeerd;
+    }
+
+    public void setGeinformeerd(boolean geinformeerd) {
+        this.geinformeerd = geinformeerd;
+    }
 
     public Capsule(){}
 
@@ -101,11 +119,12 @@ public class Capsule implements Serializable{
         this.timestampEntered = -1;
         this.timestampLeaving = -1;
         this.infected = false;
+        this.geinformeerd = false;
     }
 
-    public boolean isErOverlap(Bezoek customer){
+    public boolean isErOverlap(CriticalTuple criticalTuple){
         //BEREKEN OF ER OVERLAP IS WAARBIJ
-        if (timestampLeaving > customer.getTimestampEntered() && customer.getTimestampLeaving() > timestampEntered){
+        if (timestampLeaving > criticalTuple.getTimeEntered() && criticalTuple.getTimeLeft() > timestampEntered){
             return true;
         }
         return false;
@@ -116,9 +135,15 @@ public class Capsule implements Serializable{
         return "Capsule{" +
                 "timestampEntered=" + timestampEntered +
                 ", timestampLeaving=" + timestampLeaving +
+                ", timestampEnteredString='" + timestampEnteredString + '\'' +
+                ", timestampLeavingString='" + timestampLeavingString + '\'' +
+                ", tokenCustomer=" + tokenCustomer +
                 ", hashBar='" + hashBar + '\'' +
                 ", dagBezoek='" + dagBezoek + '\'' +
-                ", infected='" + infected + '\'' +
+                ", infected=" + infected +
+                ", geinformeerd=" + geinformeerd +
+                ", tokenSign='" + tokenSign + '\'' +
+                ", tokenData='" + tokenData + '\'' +
                 '}';
     }
 }

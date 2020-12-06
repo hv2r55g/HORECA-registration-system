@@ -98,7 +98,21 @@ public class MatchingService implements MatchingServiceInterface, Remote{
     //-----------------------------------------------OVERIDE METHODES VAN DE INTERFACE----------------------------------------------------------//
     @Override
     public void addCapsules(List<Capsule> nieuweCapsules) throws RemoteException {
-        capsulesDB.addAll(nieuweCapsules);
+        boolean matchGevonden = false;
+        //HIER NOG CHECKEN OF ER GEEN DUPLICATE IS
+        for(Capsule nieuweCapsule: nieuweCapsules){
+            for (Capsule currentCapsule: capsulesDB){
+                if (currentCapsule.getTokenCustomer().getSignature().equals(nieuweCapsule.getTokenCustomer().getSignature())){
+                    System.out.println("Dit is de huidige capsule voor: " + currentCapsule);
+                    currentCapsule.setGeinformeerd(true);
+                    matchGevonden = true;
+                    System.out.println("Dit is de huidige capsule na: " + currentCapsule);
+                }
+            }
+            if (!matchGevonden){
+                capsulesDB.add(nieuweCapsule);
+            }
+        }
     }
 
 
@@ -108,9 +122,9 @@ public class MatchingService implements MatchingServiceInterface, Remote{
 
         for (Bezoek bezoek : bezoekenLaatsteZevenDagen){
             for (Capsule capsule : infectedCapsules){
-                if (capsule.isErOverlap(bezoek)){
-                    return true;
-                }
+                //if (capsule.isErOverlap(bezoek)){
+                    //return true;
+                //}
             }
         }
 
@@ -122,9 +136,23 @@ public class MatchingService implements MatchingServiceInterface, Remote{
 
         for (Bezoek bezoek : bezoekenPatient){
             for (Capsule capsule : capsulesDB){
-                if (capsule.getHashBar() == bezoek.getHashBar()){
+                if (capsule.getHashBar() == bezoek.getCapsule().getHashBar()){
                     capsule.setInfected(true);
                     infectedCapsules.add(capsule);
+                }
+            }
+        }
+
+    }
+
+    public void setInformed(List<Bezoek> bezoekenPatient) throws RemoteException {
+        for (Bezoek bezoek : bezoekenPatient){
+            for (Capsule capsule : capsulesDB){
+                if (capsule.getTokenCustomer().getSignature().equals(bezoek.getCapsule().getTokenCustomer().getSignature())){
+                    capsule.setGeinformeerd(true);
+                    criticalTuples.add(new CriticalTuple(capsule.getHashBar(),capsule.getTimestampEntered(),capsule.getTimestampLeaving()));
+                    System.out.println("Dit was de capsule: " + capsule);
+                    System.out.println("Nieuwe tuple toegevoegd: " + criticalTuples.get(0));
                 }
             }
         }
@@ -143,11 +171,11 @@ public class MatchingService implements MatchingServiceInterface, Remote{
     public void receiveInfectedBezoeken(List<Bezoek> infectedBezoeken) throws RemoteException {
         //STAP 1: ALLE CAPSULES DIE OVEREENKOMEN MET DE BEZOEKEN, KORTOM DE USER ZIJN EIGEN CAPSULES GAAN ZOEKEN, EN DE INFORMED TAG OP TRUE ZETTEN --> DE OVERIGE WORDEN OP FALSE GEZET OF BLIJVEN STAAN
         // DEZE ACTIE STAAT DUS GEWOON GELIJK AAN HET AL OP GEINFROMEERD ZETTEN VAN DE USER ZIJN EIGEN TOKENS
-
         //STAP 2: AANMAKEN VAN EEN CRITICAL TUPLE, DEZE TUPELS GAAN OPSLAAN TOT EEN USER ZE OPVRAAGD
-        //CriticalTuple currentCritical = new CriticalTuple() --> Zo twa
+        System.out.println("De aptient bracht zoveel bezoeken"+infectedBezoeken.size());
+        setInformed(infectedBezoeken);
 
-        //STAP 3: MATCHING IS KLAAR MET ZIJN WERK EN WACHT TOT USER EEN GETCRITICALTUPLE REQUEST DOEN
+        //STAP 3: MATCHING IS KLAAR MET ZIJN WERK EN WACHT TOT USER EEN GETCRITICALTUPLE REQUEST DOEN, ZIE IN HIERONDER
     }
 
     @Override
