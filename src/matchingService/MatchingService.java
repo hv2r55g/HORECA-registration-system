@@ -183,6 +183,29 @@ public class MatchingService implements MatchingServiceInterface, Remote{
         return criticalTuples;
     }
 
+    @Override
+    public List<Capsule> uninformedCapsules() throws RemoteException {
+        List<Capsule> uninformedCapsules = new ArrayList<>();
+        List<Capsule> neededCapsules = new ArrayList<>();
+
+        for (Capsule capsule : capsulesDB){
+            if (capsule.isGeinformeerd()==false){
+                uninformedCapsules.add(capsule);
+            }
+        }
+
+        for (Capsule capsule : uninformedCapsules){
+            for (CriticalTuple criticalTuple : criticalTuples){
+                if (capsule.getHashBar().equals(criticalTuple.getHashBar()) && capsule.isErOverlap(criticalTuple)){
+                    neededCapsules.add(capsule);
+                }
+            }
+        }
+
+
+        return neededCapsules;
+    }
+
 
     //------------------------------------------------------------------------------------------------------------------------------------------//
 

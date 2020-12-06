@@ -19,4 +19,6 @@ public interface MatchingServiceInterface extends Remote {
     void receiveInfectedBezoeken(List<Bezoek> infectedBezoeken) throws RemoteException;
 
     List<CriticalTuple> requestCriticalTuples() throws RemoteException;
+
+    List<Capsule> uninformedCapsules() throws  RemoteException;
 }

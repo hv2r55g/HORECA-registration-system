@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.rmi.Naming;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.*;
@@ -16,13 +17,17 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import matchingService.MatchingService;
+import matchingService.MatchingServiceInterface;
+import mixingProxy.Capsule;
 
-public class Registrar implements RegistrarInterface {
+public class Registrar implements RegistrarInterface, Remote {
+    private MatchingServiceInterface matchingServiceInterface;
     private int aantalTokensPerCustomer;
     private String dagVanVandaag;
     //private Map<String,List> mappingHashBars;   //Key: Datum; Values: List van nyms die gemaakt zijn die dag
     private ListMultimap<String, String> mappingDayNyms = ArrayListMultimap.create();
-    private Map<String,List> mappingTokens;
+    private Map<String,List<Token>> mappingTokens;
     private KeyPair keyPairOfTheDay;
     private SecretKey masterKey;
 
@@ -30,7 +35,7 @@ public class Registrar implements RegistrarInterface {
         return aantalTokensPerCustomer;
     }
 
-    public Map<String, List> getMappingTokens() {
+    public Map<String, List<Token>> getMappingTokens() {
         return mappingTokens;
     }
 
@@ -57,11 +62,19 @@ public class Registrar implements RegistrarInterface {
         startRMIRegistry();
         String hostname = "localhost";
         String servicename = "RegistrarService";
+        String clientService = "MatchingServiceListening";
+        String servicenameMatchingServer = "MatchingServiceService";
         try {
+            MatchingService matchingService = new MatchingService();
             Registrar obj = new Registrar();
             RegistrarInterface stub = (RegistrarInterface) UnicastRemoteObject.exportObject(obj, 0);
             Naming.rebind("rmi://" + hostname + "/" + servicename, stub);
             System.out.println("RMI Server successful started");
+
+            //CONNECTEN MET MATICHING SERVICE
+            Naming.rebind("rmi://" + hostname + "/" + clientService, obj);
+            obj.matchingServiceInterface = (MatchingServiceInterface) Naming.lookup("rmi://" + hostname + "/" + servicename);
+
         } catch (Exception e) {
             System.out.println(e);
             System.out.println("Server failed starting ...");
@@ -253,6 +266,28 @@ public class Registrar implements RegistrarInterface {
             monthlyNyms.add(nym);
         }
         return monthlyNyms;
+    }
+
+    public List<Capsule> getuninformedCapsules() throws RemoteException {
+        List<Capsule> uninformedCapsules = matchingServiceInterface.uninformedCapsules();
+
+        return uninformedCapsules;
+    }
+
+    public void sentUninformedCustomers() throws RemoteException {
+        List<Capsule> uninformedCapsules = getuninformedCapsules();
+
+        for (Capsule capsule : uninformedCapsules){
+            for (String key : mappingTokens.keySet()){
+                for (Token token : mappingTokens.get(key)){
+                    if (capsule.getTokenCustomer().equals(token)){
+                        System.out.println("De persoon van deze token moet geïnformeerd worden: " + key);
+                    }
+                }
+            }
+        }
+
+
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------//
