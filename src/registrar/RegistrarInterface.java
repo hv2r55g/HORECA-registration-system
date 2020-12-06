@@ -19,10 +19,6 @@ public interface RegistrarInterface extends Remote {
 
     PublicKey getPublicKeyOfTheDay() throws RemoteException;
 
-    PrivateKey getPrivatekeyOftheDay() throws RemoteException;
-
-    String getDagVanVandaag() throws RemoteException;
-
     ListMultimap<String, String> getMappingDayNyms(int incubatieTijd) throws RemoteException;
 
     void sendUninformedCustomers(List<Capsule> neededCapsules)throws RemoteException;

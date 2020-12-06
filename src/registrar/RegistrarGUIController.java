@@ -1,5 +1,16 @@
 package registrar;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import mixingProxy.Capsule;
+
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -7,62 +18,52 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.rmi.Naming;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import mixingProxy.Capsule;
 
-public class Registrar implements RegistrarInterface, Remote {
+public class RegistrarGUIController extends UnicastRemoteObject implements RegistrarInterface{
+    @FXML
+    ListView listViewNyms;
+
+    @FXML
+    ListView listViewTokens;
+
     private int aantalTokensPerCustomer;
     private String dagVanVandaag;
-    //private Map<String,List> mappingHashBars;   //Key: Datum; Values: List van nyms die gemaakt zijn die dag
     private ListMultimap<String, String> mappingDayNyms = ArrayListMultimap.create();
-    private Map<String,List<Token>> mappingTokens;
+    private Map<String, List<Token>> mappingTokens;
     private KeyPair keyPairOfTheDay;
     private SecretKey masterKey;
 
-    public int getAantalTokensPerCustomer() {
-        return aantalTokensPerCustomer;
+    private ObservableList<String> stringListNyms;
+    private ObservableList<String> stringListTokens;
+
+    public RegistrarGUIController() throws RemoteException {
+        super();
     }
 
-    public Map<String, List<Token>> getMappingTokens() {
-        return mappingTokens;
+    public void initController() throws NoSuchAlgorithmException {
+        initAttributen();
+        initConnecties();
+        initTable();
     }
 
-    public PrivateKey getPrivateKeyOfTheDay(){
-        return keyPairOfTheDay.getPrivate();
+    private void initTable() {
+        listViewNyms.setItems(stringListNyms);
+        listViewTokens.setItems(stringListTokens);
     }
 
-    public SecretKey getMasterKey() {
-        return masterKey;
-    }
-
-    public Registrar() throws NoSuchAlgorithmException {
-        createMasterKey();
-        aantalTokensPerCustomer = 20;
-        mappingTokens = new HashMap<>();
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
-        keyPairOfTheDay = keyPairGenerator.generateKeyPair();
-        Date date = new Date();
-        SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
-        dagVanVandaag = df.format(date);
-    }
-
-    public static void main(String[] args) throws NoSuchAlgorithmException {
+    private void initConnecties() {
         startRMIRegistry();
         String hostname = "localhost";
         String servicename = "RegistrarService";
         String clientService = "MatchingServiceListening";
         String servicenameMatchingServer = "MatchingServiceService";
         try {
-            Registrar obj = new Registrar();
-            RegistrarInterface stub = (RegistrarInterface) UnicastRemoteObject.exportObject(obj, 0);
-            Naming.rebind("rmi://" + hostname + "/" + servicename, stub);
+            Naming.rebind("rmi://" + hostname + "/" + servicename, this);
             System.out.println("RMI Server successful started");
 
         } catch (Exception e) {
@@ -80,7 +81,19 @@ public class Registrar implements RegistrarInterface, Remote {
         }
     }
 
-    //-------------------------------------------------------OVERIGE METHODES-------------------------------------------------------------------//
+    private void initAttributen() throws NoSuchAlgorithmException {
+        createMasterKey();
+        aantalTokensPerCustomer = 20;
+        mappingTokens = new HashMap<>();
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+        keyPairOfTheDay = keyPairGenerator.generateKeyPair();
+        Date date = new Date();
+        SimpleDateFormat df  = new SimpleDateFormat("ddMMMMyyyy");
+        dagVanVandaag = df.format(date);
+
+        stringListNyms = FXCollections.observableArrayList();
+        stringListTokens = FXCollections.observableArrayList();
+    }
 
     public void createMasterKey() throws NoSuchAlgorithmException {
         //UNIEKE MASTERKEY VAN DE REGISTRAR GAAN GENEREREN, PER NIEUWE REGISTRAR DUS OOK NIEUWE MASTERKEY
@@ -113,26 +126,7 @@ public class Registrar implements RegistrarInterface, Remote {
 
         //NOG NAAR STRING OVERZETTEN
         return Base64.getEncoder().encodeToString(nym);
-
-
-        //DE HASHFUNCTIE IS GEBASEERD OP DE DAILY KEY
-        //TODO: Probleem was dat de hash niet geinversed engineerd kan worden
-        //String algoritme = "HMACSHA1";
-        //Mac mac = Mac.getInstance(algoritme);
-        //mac.init(currentKey);
-        //TE HASHEN DATA
-        //String encodedKey = Base64.getEncoder().encodeToString(currentKey.getEncoded());
-        //System.out.println("Zo ziet de encoded key eruit: " + encodedKey);
-        //String teHashenInfo = encodedKey + bussinesNumber + day;
-        //byte[] teHashenInfoInBytes = teHashenInfo.getBytes("UTF-8");
-        //byte[] result = mac.doFinal(teHashenInfoInBytes);
-        //String resultString = Base64.getEncoder().encodeToString(result);
-        //return resultString;
     }
-
-    //------------------------------------------------------------------------------------------------------------------------------------------//
-
-    //-----------------------------------------------OVERIDE METHODES VAN DE INTERFACE----------------------------------------------------------//
 
     @Override
     public List requestDailyCustomerToken(String phoneNumber) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
@@ -168,24 +162,40 @@ public class Registrar implements RegistrarInterface, Remote {
 
         //NOG GAAN MAPPEN DAT WE DEZE TOKENS AAN DAT TELEFOONNUMMER GEGEVEN HEBBEN
         mappingTokens.put(phoneNumber,tokens);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                refreshListViewTokens();
+            }
+        });
+
 
         //AT THE END TOKENS NAAR GEBRUIKER STUREN
         return tokens;
     }
 
+    private void refreshListViewTokens() {
+        stringListTokens.clear();
+        List<String> nieuweGegevens = new ArrayList<>();
+
+        //Nu alles in de map overlopen en naar string vormen
+        for (String phoneNumber: mappingTokens.keySet()){
+            StringBuilder sb = new StringBuilder();
+            sb.append("<" + phoneNumber + ">: {");
+            List<Token> temp = mappingTokens.get(phoneNumber);
+            for (int i = 0; i < temp.size() ; i++) {
+                Token currentToken = temp.get(i);
+                sb.append(" [" + currentToken.getSignature() + "\t\t\t" + currentToken.getDatumInfo() + "] ");
+            }
+            sb.append("}");
+            nieuweGegevens.add(sb.toString());
+        }
+        stringListTokens.addAll(nieuweGegevens);
+    }
+
     @Override
     public PublicKey getPublicKeyOfTheDay() {
         return keyPairOfTheDay.getPublic();
-    }
-
-    @Override
-    public PrivateKey getPrivatekeyOftheDay() throws RemoteException {
-        return keyPairOfTheDay.getPrivate();
-    }
-
-    @Override
-    public String getDagVanVandaag() throws RemoteException {
-        return dagVanVandaag;
     }
 
     @Override
@@ -255,7 +265,36 @@ public class Registrar implements RegistrarInterface, Remote {
             //NIET VERGETEN TOE TE VOEGEN AAN DE ARRAY
             monthlyNyms.add(nym);
         }
+
+        //TOT SLOT ONZE LISTVIEW GAAN REFRESHEN
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                refreshListViewNyms();
+            }
+        });
+
         return monthlyNyms;
+    }
+
+    private void refreshListViewNyms() {
+        stringListNyms.clear();
+        List<String> nieuweGegevens = new ArrayList<>();
+
+        for (String datum: mappingDayNyms.keySet()){
+            StringBuilder sb = new StringBuilder();
+            sb.append("<" + datum + ">: {");
+            List<String> nyms = mappingDayNyms.get(datum);
+            for (int i = 0; i < nyms.size(); i++) {
+                sb.append(nyms.get(i));
+                if (i!=(nyms.size()-1)){
+                    sb.append("\t\t\t");
+                }
+            }
+            sb.append("}");
+            nieuweGegevens.add(sb.toString());
+        }
+        stringListNyms.addAll(nieuweGegevens);
     }
 
 
@@ -271,7 +310,4 @@ public class Registrar implements RegistrarInterface, Remote {
             }
         }
     }
-
-
-    //------------------------------------------------------------------------------------------------------------------------------------------//
 }

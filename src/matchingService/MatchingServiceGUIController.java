@@ -12,7 +12,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import mixingProxy.Capsule;
-import mixingProxy.MixingProxyInterface;
 import registrar.RegistrarInterface;
 
 import java.net.MalformedURLException;
