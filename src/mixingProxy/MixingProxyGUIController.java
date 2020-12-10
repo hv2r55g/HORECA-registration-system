@@ -174,7 +174,7 @@ public class MixingProxyGUIController extends UnicastRemoteObject  implements Mi
 
 
     public boolean checkValidityToken(Capsule capsule) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
-        Signature signatureVerify = Signature.getInstance("SHA256WithDSA");
+        Signature signatureVerify = Signature.getInstance("SHA1WithDSA");
         byte[] sign = Base64.getDecoder().decode(capsule.getTokenCustomer().getSignature().getBytes());
         byte[] data = Base64.getDecoder().decode(capsule.getTokenCustomer().getDatumInfo().getBytes());
         signatureVerify.initVerify(publicKeyToday);
@@ -245,7 +245,7 @@ public class MixingProxyGUIController extends UnicastRemoteObject  implements Mi
     @Override
     public String signCapsule(Capsule capsule) throws NoSuchAlgorithmException, SignatureException, RemoteException, InvalidKeyException {
         //STRING GAAN SIGNEN EN DAN GEPASTE AFBEELDING GAAN DOORSTUREN
-        Signature signature = Signature.getInstance("SHA256withRSA");
+        Signature signature = Signature.getInstance("SHA1withRSA");
         signature.initSign(keyPairOfTheDay.getPrivate());
         //System.out.println("Voor: "+capsule.getHashBar());
         byte[] result = Base64.getDecoder().decode(capsule.getHashBar());
@@ -266,7 +266,7 @@ public class MixingProxyGUIController extends UnicastRemoteObject  implements Mi
         //OPGEROEPEN ALS DE BAR OPEN GAAT
 
         //STRING GAAN SIGNEN EN DAN GEPASTE AFBEELDING GAAN DOORSTUREN
-        Signature signature = Signature.getInstance("SHA256withRSA");
+        Signature signature = Signature.getInstance("SHA1withRSA");
         signature.initSign(keyPairOfTheDay.getPrivate());
         byte[] result = Base64.getDecoder().decode(hashBar);
         signature.update(result);
