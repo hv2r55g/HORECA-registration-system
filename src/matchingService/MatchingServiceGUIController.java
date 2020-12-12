@@ -180,10 +180,10 @@ public class MatchingServiceGUIController extends UnicastRemoteObject implements
         for(Capsule nieuweCapsule: nieuweCapsules){
             for (Capsule currentCapsule: capsulesDB){
                 if (currentCapsule.getTokenCustomer().getSignature().equals(nieuweCapsule.getTokenCustomer().getSignature())){
-                    System.out.println("Dit is de huidige capsule voor: " + currentCapsule);
+                    //System.out.println("Dit is de huidige capsule voor: " + currentCapsule);
                     currentCapsule.setGeinformeerd(true);
                     matchGevonden = true;
-                    System.out.println("Dit is de huidige capsule na: " + currentCapsule);
+                    //System.out.println("Dit is de huidige capsule na: " + currentCapsule);
                     tableViewCapsules.refresh();
                 }
             }
@@ -200,7 +200,7 @@ public class MatchingServiceGUIController extends UnicastRemoteObject implements
         //STAP 2: AANMAKEN VAN EEN CRITICAL TUPLE, DEZE TUPELS GAAN OPSLAAN TOT EEN USER ZE OPVRAAGD
         bezoekenLogs.clear();
         bezoekenLogs.addAll(infectedBezoeken);
-        System.out.println("De aptient bracht zoveel bezoeken"+bezoekenLogs.size());
+        System.out.println("De patient bracht zoveel bezoeken "+bezoekenLogs.size());
         setInformed(bezoekenLogs);
 
         //WELKE CAFES WAREN INFECTED?
@@ -230,8 +230,8 @@ public class MatchingServiceGUIController extends UnicastRemoteObject implements
                 dos.close();
                 bos.close();
 
-                System.out.println("hash van de bezoeker:\t "+currentBezoek.getHashBar());
-                System.out.println("hash nieuw gemaakt:\t "+ nieuweHashString);
+                //System.out.println("hash van de bezoeker:\t "+currentBezoek.getHashBar());
+                //System.out.println("hash nieuw gemaakt:\t "+ nieuweHashString);
 
                 if (currentBezoek.getHashBar().equals(nieuweHashString)){
                     System.out.println("We hebben een match= " + currentNym);
@@ -259,7 +259,7 @@ public class MatchingServiceGUIController extends UnicastRemoteObject implements
                 if (capsule.getTokenCustomer().getSignature().equals(bezoek.getCapsule().getTokenCustomer().getSignature())){
                     capsule.setGeinformeerd(true);
                     criticalTuples.add(new CriticalTuple(capsule.getHashBar(),capsule.getTimestampEntered(),capsule.getTimestampLeaving()));
-                    System.out.println("Dit was de capsule: " + capsule);
+                    //System.out.println("Dit was de capsule: " + capsule);
                     System.out.println("Nieuwe tuple toegevoegd: " + criticalTuples.get(0));
                     tableViewCapsules.refresh();
                 }

@@ -217,6 +217,8 @@ public class RegistrarGUIController extends UnicastRemoteObject implements Regis
         }
 
         //TER CONTROLE KEER ALLE KEYS UITPRINTEN
+        System.out.println();
+        System.out.println();
         System.out.println("Alle keys van de incubatietijd");
         for (String s : result.keySet()) {
             System.out.println("-------------------------------------------------------------------------");
@@ -225,6 +227,8 @@ public class RegistrarGUIController extends UnicastRemoteObject implements Regis
                 System.out.println("Value: " + hash);
             }
         }
+        System.out.println();
+        System.out.println();
 
         return result;
     }
@@ -249,7 +253,7 @@ public class RegistrarGUIController extends UnicastRemoteObject implements Regis
                 //System.out.println(currentDate);
                 key = generateDailyKey(bussinesNumber, currentDate);
                 nym = createNym(key,bussinesNumber,currentDate);
-                System.out.println("De key is: " + key + "\t De nym is: " + nym);
+                //System.out.println("De key is: " + key + "\t De nym is: " + nym);
                 mappingDayNyms.put(currentDate,nym);
             } else {
                 //1 DAG AAN DE CALENDAR TOEVOEGEN
@@ -259,7 +263,7 @@ public class RegistrarGUIController extends UnicastRemoteObject implements Regis
                 //System.out.println(dueDate);
                 key = generateDailyKey(bussinesNumber, dueDate);
                 nym = createNym(key,bussinesNumber,dueDate);
-                System.out.println("De key is: " + key + "\t De nym is: " + nym);
+                //System.out.println("De key is: " + key + "\t De nym is: " + nym);
                 mappingDayNyms.put(dueDate,nym);
             }
             //NIET VERGETEN TOE TE VOEGEN AAN DE ARRAY

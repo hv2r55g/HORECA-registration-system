@@ -86,14 +86,14 @@ public class MixingProxyGUIController extends UnicastRemoteObject  implements Mi
             alfabetArray.add(c);
         }
         List<String> afbeeldingenArray = Arrays.asList(afbeeldingen);
-        //Collections.shuffle(intervalArray);
-        //Collections.shuffle(afbeeldingenArray);
+        Collections.shuffle(alfabetArray);
+        Collections.shuffle(afbeeldingenArray);
 
-        boolean evenGroot = alfabet.length == afbeeldingen.length;
-        System.out.println(alfabet.length);
-        System.out.println(afbeeldingen.length);
-        System.out.println("Zijn de sizes even groot? " + evenGroot);
-        if (evenGroot){
+        //boolean evenGroot = alfabet.length == afbeeldingen.length;
+        //System.out.println(alfabet.length);
+        //System.out.println(afbeeldingen.length);
+        //System.out.println("Zijn de sizes even groot? " + evenGroot);
+        if (alfabet.length == afbeeldingen.length){
             for (int i = 0; i < alfabet.length; i++) {
                 mappingIcons.put(alfabetArray.get(i),afbeeldingenArray.get(i));
             }
@@ -180,7 +180,7 @@ public class MixingProxyGUIController extends UnicastRemoteObject  implements Mi
         signatureVerify.initVerify(publicKeyToday);
         signatureVerify.update(data);
         boolean b = signatureVerify.verify(sign);
-        System.out.println(b);
+        //System.out.println(b);
         return b;
     }
 
@@ -190,8 +190,8 @@ public class MixingProxyGUIController extends UnicastRemoteObject  implements Mi
         byte[] dataBytes = Arrays.copyOfRange(data,20,data.length);
 
         String dateValue = new String(dataBytes);
-        System.out.println("Dit zou normaal de value moeten zijn van den datem die van in de sign steken " + dateValue);
-        System.out.println("Dit is de dag van vandaag: " + dagVanVandaag);
+        //System.out.println("Dit zou normaal de value moeten zijn van den datem die van in de sign steken " + dateValue);
+        //System.out.println("Dit is de dag van vandaag: " + dagVanVandaag);
 
         if (dateValue.equals(dagVanVandaag)){
             return true;
@@ -216,7 +216,7 @@ public class MixingProxyGUIController extends UnicastRemoteObject  implements Mi
                 }
             }
         }
-        System.out.println("Is het een nieuwe token? " + isNewToken);
+        //System.out.println("Is het een nieuwe token? " + isNewToken);
         return isNewToken;
     }
 
@@ -283,7 +283,7 @@ public class MixingProxyGUIController extends UnicastRemoteObject  implements Mi
     private String zoekAfbeelding(String ackString) {
         //10DE CHAR VOOR BEETJE WILLEKEUR
         char karakterKey = ackString.charAt(10);
-        System.out.println("Dit is het karakter: " + Character.toLowerCase(karakterKey));
+        //System.out.println("Dit is het karakter: " + Character.toLowerCase(karakterKey));
         if (mappingIcons.containsKey(Character.toLowerCase(karakterKey))) {
             //CHAR BEVINDT ZICH IN DE STRING
             return mappingIcons.get(Character.toLowerCase(karakterKey));
@@ -359,7 +359,7 @@ public class MixingProxyGUIController extends UnicastRemoteObject  implements Mi
         }
 
         System.out.println("Nog zoveel capsules aanwezig: " + capsules.size());
-        System.out.println("Zoveel capsules naar matiching: " + toMatchingCapsules.size());
+        System.out.println("Zoveel capsules naar matching: " + toMatchingCapsules.size());
         Collections.shuffle(toMatchingCapsules);
         matchingServiceInterface.addCapsules(toMatchingCapsules);
 

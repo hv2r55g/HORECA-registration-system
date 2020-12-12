@@ -114,7 +114,7 @@ public class BarGUIController extends UnicastRemoteObject implements Remote {
         byte[] randomBytes = new byte[20];
         random.nextBytes(randomBytes);
         String randomGetal = Base64.getEncoder().encodeToString(randomBytes);
-        System.out.println("Dit is de nieuwe random getal: " + randomGetal);
+        System.out.println("Dit is het random getal: " + randomGetal);
 
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 
@@ -131,7 +131,7 @@ public class BarGUIController extends UnicastRemoteObject implements Remote {
         //GAAN HASHEN
         byte[] hashBar = messageDigest.digest(bos.toByteArray());
         String hashBarString = Base64.getEncoder().encodeToString(hashBar);
-        System.out.println("Dit is de nieuwe hash: " + hashBarString);
+        System.out.println("Dit is de hash: " + hashBarString);
 
         dos.close();
         bos.close();

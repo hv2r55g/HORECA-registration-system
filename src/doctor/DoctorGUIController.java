@@ -144,7 +144,7 @@ public class DoctorGUIController extends UnicastRemoteObject implements Remote {
                     Bezoek currentBezoek = new Bezoek(Long.parseLong(gegevens[0]),Long.parseLong(gegevens[1]),gegevens[2],gegevens[3],gegevens[4],gegevens[5]);
                     bezoekenPatient.add(currentBezoek);
                 }
-                System.out.println("Patient: " + currentPatient + " heeft de afgelopen tijd " + bezoekenPatient.size() + " keer een bezoek gebracht aan een bar of restaurant.");
+                System.out.println("Patient: " + currentPatient + " heeft de afgelopen tijd " + bezoekenPatient.size() + " keer een bezoek gebracht aan een caterfering facility.");
 
             } catch (FileNotFoundException e) {
                 System.out.println("De patient heeft nog geen dokterbestand aangemaakt");

@@ -113,7 +113,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
                 while (sc.hasNextLine()){
                     String[] bezoek = sc.nextLine().split(";");
                     Bezoek nieuwBezoek = new Bezoek(Long.parseLong(bezoek[0]),Long.parseLong(bezoek[1]),bezoek[2],bezoek[3],bezoek[4],bezoek[5]);
-                    System.out.println(nieuwBezoek);
+                    //System.out.println(nieuwBezoek);
                     result.add(nieuwBezoek);
                 }
             } else {
@@ -227,7 +227,7 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
         if (!tokens.isEmpty()) {
             //CAPSULE OPMAKEN
             currentToken = tokens.get(0);
-            System.out.println("Dit is de hashBar die we naar de mixing sturen: " + QRcodeCurrentBar.getHashBar());
+            //System.out.println("Dit is de hashBar die we naar de mixing sturen: " + QRcodeCurrentBar.getHashBar());
             Capsule capsule = new Capsule(currentToken, QRcodeCurrentBar.getHashBar());
 
             boolean doSign = mixingProxyInterface.sendCapsule(capsule);
@@ -325,13 +325,13 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
             Scanner sc = new Scanner(file);
 
             if(!sc.hasNextLine()) {
-                System.out.println("File bestaat nog niet");
+                //System.out.println("File bestaat nog niet");
                 bw.append("Timestamp entering;Timestamp leaving;Token sign;Random number bar;Bussiness number bar;Hash bar");
                 bw.newLine();
                 bw.append(bezoek.getCapsule().getTimestampEntered() + ";" + bezoek.getCapsule().getTimestampLeaving()+ ";"+ bezoek.getCapsule().getTokenCustomer().getSignature() + ";" + bezoek.getRandomIntBar()+ ";" + bezoek.getBusinessNumberBar()+ ";" + bezoek.getCapsule().getHashBar());
                 bw.newLine();
             } else {
-                System.out.println("File bestaat wel al");
+                //System.out.println("File bestaat wel al");
                 bw.append(bezoek.getCapsule().getTimestampEntered() + ";" + bezoek.getCapsule().getTimestampLeaving()+ ";"+ bezoek.getCapsule().getTokenCustomer().getSignature() + ";" + bezoek.getRandomIntBar()+ ";" + bezoek.getBusinessNumberBar()+ ";" + bezoek.getCapsule().getHashBar());
                 bw.newLine();
             }
