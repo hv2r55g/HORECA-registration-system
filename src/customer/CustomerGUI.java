@@ -34,7 +34,7 @@ public class CustomerGUI extends Application {
             String telefoonr = result.get();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerApp.fxml"));
             Parent root = loader.load();
-            primaryStage.setTitle("Client App");
+            primaryStage.setTitle("App for: " + telefoonr);
             primaryStage.setScene(new Scene(root,1000,700));
             CustomerGUIController controller = loader.getController();
             controller.initController(telefoonr);

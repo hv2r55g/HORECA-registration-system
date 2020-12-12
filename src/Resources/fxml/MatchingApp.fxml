@@ -11,6 +11,7 @@
                <children>
                   <Label prefHeight="17.0" prefWidth="58.0" text="Capsules" />
                   <Button fx:id="buttonUninformed" mnemonicParsing="false" onAction="#sendUninformedCapsules" text="Send Uninformed Capsules" />
+                  <Button fx:id="buttonPrintInfected" mnemonicParsing="false" onAction="#printInfectedCF" text="Infected CF" />
                </children>
             </HBox>
             <TableView fx:id="tableViewCapsules" />

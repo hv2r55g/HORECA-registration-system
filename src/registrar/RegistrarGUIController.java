@@ -109,7 +109,7 @@ public class RegistrarGUIController extends UnicastRemoteObject implements Regis
     }
 
     private String createNym(SecretKeySpec currentKey, String bussinesNumber, String day) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
@@ -303,7 +303,7 @@ public class RegistrarGUIController extends UnicastRemoteObject implements Regis
         for (Capsule capsule : uninformedCapsules){
             for (String key : mappingTokens.keySet()){
                 for (Token token : mappingTokens.get(key)){
-                    if (capsule.getTokenCustomer().equals(token)){
+                    if (capsule.getTokenCustomer().getSignature().equals(token.getSignature())){
                         System.out.println("De persoon van deze token moet geïnformeerd worden: " + key);
                     }
                 }

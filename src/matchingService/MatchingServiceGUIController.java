@@ -14,18 +14,28 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import mixingProxy.Capsule;
 import registrar.RegistrarInterface;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class MatchingServiceGUIController extends UnicastRemoteObject implements  MatchingServiceInterface,Remote {
     @FXML
     Button buttonUninformed;
+
+    @FXML
+    Button buttonPrintInfected;
 
     @FXML
     TableView tableViewCapsules;
@@ -39,6 +49,7 @@ public class MatchingServiceGUIController extends UnicastRemoteObject implements
     private List<Capsule> infectedCapsules = new ArrayList<>();
     private ObservableList<CriticalTuple> criticalTuples;
     private ListMultimap<String, String> mappingDayNyms = ArrayListMultimap.create();
+    private List<String> infectedCF;
 
     public MatchingServiceGUIController() throws RemoteException {
         super();
@@ -159,6 +170,7 @@ public class MatchingServiceGUIController extends UnicastRemoteObject implements
         capsulesDB = FXCollections.observableArrayList();
         criticalTuples = FXCollections.observableArrayList();
         bezoekenLogs = FXCollections.observableArrayList();
+        infectedCF = new ArrayList<>();
     }
 
     @Override
@@ -182,13 +194,52 @@ public class MatchingServiceGUIController extends UnicastRemoteObject implements
     }
 
     @Override
-    public void receiveInfectedBezoeken(List<Bezoek> infectedBezoeken) throws RemoteException {
+    public void receiveInfectedBezoeken(List<Bezoek> infectedBezoeken) throws IOException, NoSuchAlgorithmException {
         //STAP 1: ALLE CAPSULES DIE OVEREENKOMEN MET DE BEZOEKEN, KORTOM DE USER ZIJN EIGEN CAPSULES GAAN ZOEKEN, EN DE INFORMED TAG OP TRUE ZETTEN --> DE OVERIGE WORDEN OP FALSE GEZET OF BLIJVEN STAAN
         // DEZE ACTIE STAAT DUS GEWOON GELIJK AAN HET AL OP GEINFROMEERD ZETTEN VAN DE USER ZIJN EIGEN TOKENS
         //STAP 2: AANMAKEN VAN EEN CRITICAL TUPLE, DEZE TUPELS GAAN OPSLAAN TOT EEN USER ZE OPVRAAGD
+        bezoekenLogs.clear();
         bezoekenLogs.addAll(infectedBezoeken);
         System.out.println("De aptient bracht zoveel bezoeken"+bezoekenLogs.size());
         setInformed(bezoekenLogs);
+
+        //WELKE CAFES WAREN INFECTED?
+        int incubatietijd = 7;
+        mappingDayNyms = registrarInterface.getMappingDayNyms(incubatietijd);
+        SimpleDateFormat df = new SimpleDateFormat("ddMMMMyyyy");
+        for (Bezoek currentBezoek: infectedBezoeken){
+            String currentDatum = df.format(currentBezoek.getCapsule().getTimestampEntered());
+            byte[] ri = Base64.getDecoder().decode(currentBezoek.getRandomIntBar());
+            for (String currentNym: mappingDayNyms.get(currentDatum)){
+                byte[] currentNymByteArray = Base64.getDecoder().decode(currentNym);
+                MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                DataOutputStream dos = new DataOutputStream(bos);
+
+                //BYTE ARRAY MAKEN --> RANDOM EN NYM
+                dos.write(ri);
+                //NYM MOET TERUG GeDECODED WORDEN
+                dos.write(currentNymByteArray);
+                dos.flush();
+
+                //GAAN HASHEN
+                byte[] nieuweHash = messageDigest.digest(bos.toByteArray());
+                String nieuweHashString = Base64.getEncoder().encodeToString(nieuweHash);
+
+                dos.close();
+                bos.close();
+
+                System.out.println("hash van de bezoeker:\t "+currentBezoek.getHashBar());
+                System.out.println("hash nieuw gemaakt:\t "+ nieuweHashString);
+
+                if (currentBezoek.getHashBar().equals(nieuweHashString)){
+                    System.out.println("We hebben een match= " + currentNym);
+                    infectedCF.add(currentNym);
+                }
+
+            }
+        }
 
         //STAP 3: MATCHING IS KLAAR MET ZIJN WERK EN WACHT TOT USER EEN GETCRITICALTUPLE REQUEST DOEN, ZIE IN HIERONDER
     }
@@ -210,6 +261,7 @@ public class MatchingServiceGUIController extends UnicastRemoteObject implements
                     criticalTuples.add(new CriticalTuple(capsule.getHashBar(),capsule.getTimestampEntered(),capsule.getTimestampLeaving()));
                     System.out.println("Dit was de capsule: " + capsule);
                     System.out.println("Nieuwe tuple toegevoegd: " + criticalTuples.get(0));
+                    tableViewCapsules.refresh();
                 }
             }
         }
@@ -237,5 +289,13 @@ public class MatchingServiceGUIController extends UnicastRemoteObject implements
 
         //NU NOG DEZE UNINFORMED NAAR REGISTRAR
         registrarInterface.sendUninformedCustomers(neededCapsules);
+    }
+
+    @FXML
+    public void printInfectedCF(){
+        System.out.println("Dit waren alle infected CFs:");
+        for (String s: infectedCF){
+            System.out.println(s);
+        }
     }
 }

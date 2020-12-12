@@ -24,7 +24,7 @@ public class MatchingServiceGUI extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MatchingApp.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Matching Service App");
-        primaryStage.setScene(new Scene(root,1000,700));
+        primaryStage.setScene(new Scene(root,1400,700));
         MatchingServiceGUIController controller = loader.getController();
         controller.initController();
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {

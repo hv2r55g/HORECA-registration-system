@@ -296,11 +296,15 @@ public class CustomerGUIController extends UnicastRemoteObject implements Remote
                     if (bezoek.getCapsule().isErOverlap(currentCriticalTuple)){
                         System.out.println("Dit is de infected token: " + bezoek.getCapsule().getTokenCustomer().getSignature());
                         geinfecteerdeCapsules.add(bezoek.getCapsule());
+                        setLogo("CovidContact.jpg");
                     }
                 }
             }
         }
 
+        if (geinfecteerdeCapsules.size()==0){
+            setLogo("CovidProof.jpg");
+        }
         //STAP 4: lIJST VAN GEINFECTEERDE DOORSTUREN NAAR MIXING, MISSCHIEN VOOR DE DUIDELIJKHEID NIEUWE INTERFACE METHODE
         mixingProxyInterface.sendACK(geinfecteerdeCapsules);
     }

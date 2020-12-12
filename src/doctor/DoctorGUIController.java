@@ -1,5 +1,7 @@
 package doctor;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import customer.Bezoek;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,13 +15,17 @@ import matchingService.MatchingServiceInterface;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 
@@ -100,14 +106,24 @@ public class DoctorGUIController extends UnicastRemoteObject implements Remote {
     }
 
     @FXML
-    private void stuurNaarMatching() throws RemoteException {
+    private void stuurNaarMatching() throws IOException, NoSuchAlgorithmException {
         System.out.println("size Bezoeken patient: " + bezoekenPatient.size());
-        //OBSERVBLA MOET NAAR ARRAYLIST
-        List<Bezoek> temp = new ArrayList<>();
-        for (Bezoek bezoek: bezoekenPatient){
-            temp.add(bezoek);
+        //ALLE NYMS TERUGGEVEN DIE INCUBATIETIJD TERUG GAAN
+        int incubatieTijd = 7;
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("ddMMMMyyyy");
+
+        List<Bezoek> incubatieTijdBezoeken = new ArrayList<>();
+        for (int i = 0; i < incubatieTijd; i++) {
+            for (Bezoek currentBezoek: bezoekenPatient){
+                if (df.format(currentBezoek.getCapsule().getTimestampEntered()).equals(df.format(calendar.getTime()))){
+                    incubatieTijdBezoeken.add(currentBezoek);
+                }
+            }
+            calendar.add(Calendar.DAY_OF_YEAR,-1);
         }
-        matchingServiceInterface.receiveInfectedBezoeken(temp);
+
+        matchingServiceInterface.receiveInfectedBezoeken(incubatieTijdBezoeken);
         bezoekenPatient.clear();
     }
 

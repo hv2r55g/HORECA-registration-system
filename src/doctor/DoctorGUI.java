@@ -24,7 +24,7 @@ public class DoctorGUI extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DoctorApp.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Doctor App");
-        primaryStage.setScene(new Scene(root,1000,700));
+        primaryStage.setScene(new Scene(root,1400,700));
         DoctorGUIController controller = loader.getController();
         controller.initController();
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {

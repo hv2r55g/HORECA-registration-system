@@ -116,7 +116,7 @@ public class BarGUIController extends UnicastRemoteObject implements Remote {
         String randomGetal = Base64.getEncoder().encodeToString(randomBytes);
         System.out.println("Dit is de nieuwe random getal: " + randomGetal);
 
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
