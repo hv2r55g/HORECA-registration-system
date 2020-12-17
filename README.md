@@ -20,4 +20,5 @@
 
 ## Bezoek brengen aan de dokter
 1. DokterGUI opstarten, telefoonnr van de patient ingeven en op "get logs" drukken.
-2. De logs kunnen gecontroleerd worden vooraleer men ze naar de matching service stuurt op de knop "To matching"
+2. Men controleert of de Mixing Proxy geen capsules meer in zijn queue heeft. Zo ja drukt men op de flush knop.
+3. De logs kunnen gecontroleerd worden vooraleer men ze naar de matching service stuurt op de knop "To matching"
